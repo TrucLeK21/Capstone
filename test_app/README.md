@@ -36,3 +36,6 @@ dependencies:
   get: ^4.6.5
   flutter_blue_plus: ^1.4.0
 ```
+Add images to asset folder
+**assets/**
+
