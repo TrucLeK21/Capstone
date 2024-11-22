@@ -1,16 +1,38 @@
-# test_app
-
-A new Flutter project.
-
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Add permissions for Android (No Location)
 
-A few resources to get you started if this is your first Flutter project:
+In the **android/app/src/main/AndroidManifest.xml** add:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```xml
+<!-- Tell Google Play Store that your app uses Bluetooth LE
+     Set android:required="true" if bluetooth is necessary -->
+<uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<!-- New Bluetooth permissions in Android 12
+https://developer.android.com/about/versions/12/features/bluetooth-permissions -->
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+<!-- legacy for Android 11 or lower -->
+<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
+
+<!-- legacy for Android 9 or lower -->
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
+```
+Add dependencies
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  get: ^4.6.5
+  flutter_blue_plus: ^1.4.0
+```
