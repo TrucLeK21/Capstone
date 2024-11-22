@@ -5,22 +5,24 @@
 In the **android/app/src/main/AndroidManifest.xml** add:
 
 ```xml
-<!-- Tell Google Play Store that your app uses Bluetooth LE
-     Set android:required="true" if bluetooth is necessary -->
-<uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-<!-- New Bluetooth permissions in Android 12
-https://developer.android.com/about/versions/12/features/bluetooth-permissions -->
-<uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
-<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+     <!-- Allow Bluetooth -->
+     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
 
-<!-- legacy for Android 11 or lower -->
-<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
-
-<!-- legacy for Android 9 or lower -->
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
+     <!-- New Bluetooth permissions in Android 12
+     https://developer.android.com/about/versions/12/features/bluetooth-permissions -->
+     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+ 
+     <!-- legacy for Android 11 or lower -->
+     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30"/>
+ 
+ 
+     <!-- legacy for Android 9 or lower -->
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 Add dependencies
 
