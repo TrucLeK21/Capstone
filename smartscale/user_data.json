@@ -1,0 +1,50 @@
+{
+    "_id": "507f1f77bcf86cd799439011",
+    "data": [
+        {
+            "name": "Weight",
+            "value": 64.4,
+            "unit": "Kg"
+        },
+        {
+            "name": "BMI",
+            "value": 22.28,
+            "unit": ""
+        },
+        {
+            "name": "Water %",
+            "value": 44.75,
+            "unit": "%"
+        },
+        {
+            "name": "Bone Mass",
+            "value": 8,
+            "unit": "kg"
+        },
+        {
+            "name": "Muscle Mass",
+            "value": 44.4,
+            "unit": "kg"
+        },
+        {
+            "name": "Fat %",
+            "value": 18.64,
+            "unit": "%"
+        },
+        {
+            "name": "Visceral Fat",
+            "value": 7.93,
+            "unit": ""
+        },
+        {
+            "name": "Metabolic Age",
+            "value": 24,
+            "unit": "years"
+        },
+        {
+            "name": "BMR",
+            "value": 1602,
+            "unit": "kcal/day"
+        }
+    ]
+}
