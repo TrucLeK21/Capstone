@@ -5,7 +5,7 @@ import 'dart:math';
 import 'dart:convert';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: BlueetoothConnectionScreen(),
       // home: BodyMetricsGridScreen(),
@@ -37,26 +37,27 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
   BluetoothCharacteristic? _readCharacteristic;
   final Guid characteristicUuidPi = Guid('00000002-cbd6-4d25-8851-18cb67b7c2d9');
   String progressText = "Connecting to BLE Server...";
-  Map<String, dynamic>? bodyMetrics;
+  // Map<String, dynamic>? bodyMetrics;
+  bool isConnected = false;
   bool isValid = false;
-  List<Map<String, dynamic>> bodyMetrics_test = [];
+  List<Map<String, dynamic>> bodyMetrics = [];
 
   @override
   void initState() {
     super.initState();
     scanAndConnect();
-
-    bodyMetrics_test = [
-      {"name": "Weight", "value": widget.weight,"unit": "Kg"},
-      {"name": "BMI", "value": 22.5, "unit": ""},
-      {"name": "Water %", "value": 55.2, "unit": "%"},
-      {"name": "Bone Mass", "value": 3.2, "unit": "kg"},
-      {"name": "Muscle Mass", "value": 45.5, "unit": "kg"},
-      {"name": "Fat %", "value": 18.7, "unit": "%"},
-      {"name": "Visceral Fat", "value": 8, "unit": ""},
-      {"name": "Metabolic Age", "value": 25, "unit": "years"},
-      {"name": "BMR", "value": 1500, "unit": "kcal/day"},
-    ];
+    checkConnectionState();
+    // bodyMetrics_test = [
+    //   {"name": "Weight", "value": widget.weight,"unit": "Kg"},
+    //   {"name": "BMI", "value": 22.5, "unit": ""},
+    //   {"name": "Water %", "value": 55.2, "unit": "%"},
+    //   {"name": "Bone Mass", "value": 3.2, "unit": "kg"},
+    //   {"name": "Muscle Mass", "value": 45.5, "unit": "kg"},
+    //   {"name": "Fat %", "value": 18.7, "unit": "%"},
+    //   {"name": "Visceral Fat", "value": 8, "unit": ""},
+    //   {"name": "Metabolic Age", "value": 25, "unit": "years"},
+    //   {"name": "BMR", "value": 1500, "unit": "kcal/day"},
+    // ];
   }
 
   void scanAndConnect() async {
@@ -80,6 +81,17 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
       }
     });
   }
+
+  void checkConnectionState() async {
+    rasPi?.connectionState.listen((BluetoothConnectionState state) {
+      if (state == BluetoothConnectionState.connected) {
+        isConnected = false;
+      } else {
+        isConnected = true;
+      }
+    });
+  }
+
 
   void discoverServices() async {
     if (rasPi == null) return;
@@ -124,9 +136,9 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
   }
 
   void startPeriodicReading() async {
-    const duration = Duration(milliseconds: 400);
+    const duration = Duration(milliseconds: 2000);
     final startTime = DateTime.now();
-
+    Stopwatch stopwatch = Stopwatch()..start();
     setState(() {
       progressText = "Waiting for response...";
     });
@@ -146,20 +158,26 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
       await _writeCharacteristic!.write(widget.weight.toString().codeUnits);
 
       // Wait 100ms
-      await Future.delayed(const Duration(milliseconds: 400));
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       // Read data from the server
       List<int> value = await _readCharacteristic!.read();
-      String string_data = String.fromCharCodes(value);
+      String stringData = String.fromCharCodes(value);
+      // print(stringData);
 
 
       // Validate the response
-      if (isValidData(string_data)) {
-        bodyMetrics = jsonDecode(string_data);
-        bodyMetrics_test.firstWhere((metric) => metric['name'] == 'BMI',)['value'] = bodyMetrics?['bmi'];
-        timer.cancel();
+      // If data is valid (not '{}')
+      if (isValidData(stringData)) {
+        stopwatch.stop(); // Stop the stopwatch
+        // Get the elapsed time
+        print('Elapsed time: ${stopwatch.elapsedMilliseconds} ms');
 
-        // If data is valid (not '{}')
+        List<dynamic> tempList = jsonDecode(stringData);
+        bodyMetrics = tempList.cast<Map<String, dynamic>>();
+        timer.cancel();
+        rasPi?.disconnect();
+
         setState(() {
           isValid = true;
         });
@@ -195,19 +213,19 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 RichText(
                   text: TextSpan(
                     children: [
                       TextSpan(
                         text: '${widget.weight} ', // Weight part
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 40,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
-                      TextSpan(
+                      const TextSpan(
                         text: 'Kg', // Smaller "Kg"
                         style: TextStyle(
                           fontSize: 20, // Smaller font size for "Kg"
@@ -218,11 +236,11 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 50),
+                const SizedBox(height: 50),
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 100,
                       width: 100,
                       child: CircularProgressIndicator(
@@ -237,17 +255,22 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Text(
                   progressText,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     color: Colors.black,
                     fontFamily: 'Roboto',
                   )
                 ),
+                if (!isValid && isConnected)
+                  ElevatedButton(
+                    onPressed: writeData,
+                    child: const Text('Retry'),
+                  ),
               ],
             ),
           ),
@@ -261,9 +284,9 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
         ),
         body: ListView.builder(
           padding: const EdgeInsets.all(16.0),
-          itemCount: bodyMetrics_test.length,
+          itemCount: bodyMetrics.length,
           itemBuilder: (context, index) {
-            final metric = bodyMetrics_test[index];
+            final metric = bodyMetrics[index];
             return Card(
               elevation: 4,
               margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -296,7 +319,7 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
                         ),
                       ],
                     ),
-                    Icon(
+                    const Icon(
                       Icons.fitness_center,
                       color: Colors.blueAccent,
                       size: 40,
@@ -450,7 +473,7 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
                       Stack(
                         alignment: Alignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             height: 100,
                             width: 100,
                             child: CircularProgressIndicator(
@@ -465,10 +488,10 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
                           ),
                         ],
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
-                      Text(
+                      const Text(
                         'Connecting to MI SCALE 2',
                         style: TextStyle(
                           fontSize: 20,
@@ -476,7 +499,7 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
                           fontFamily: 'Roboto',
                         )
                       ),
-                      Text(
+                      const Text(
                         'Please step on the scale',
                         style: TextStyle(
                           fontSize: 12,
@@ -619,13 +642,13 @@ class _WeightDisplayScreenState extends State<WeightDisplayScreen>
                         children: [
                           TextSpan(
                             text: '${widget.weight} ', // Weight part
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
                           ),
-                          TextSpan(
+                          const TextSpan(
                             text: 'Kg', // Smaller "Kg"
                             style: TextStyle(
                               fontSize: 20, // Smaller font size for "Kg"
