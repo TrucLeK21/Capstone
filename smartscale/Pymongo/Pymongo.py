@@ -57,12 +57,12 @@ json_data_list = [
     }
 ]
 
-# Thêm dữ liệu mẫu nếu cần
-try:
-    result = collection.insert_many(json_data_list)
-    print(f"Dữ liệu đã được chèn với các ID: {result.inserted_ids}")
-except Exception as e:
-    print(f"Lỗi khi chèn dữ liệu (có thể dữ liệu đã tồn tại): {e}")
+# # Thêm dữ liệu mẫu nếu cần
+# try:
+#     result = collection.insert_many(json_data_list)
+#     print(f"Dữ liệu đã được chèn với các ID: {result.inserted_ids}")
+# except Exception as e:
+#     print(f"Lỗi khi chèn dữ liệu (có thể dữ liệu đã tồn tại): {e}")
 
 # Lấy dữ liệu dựa vào id và weight
 user_id = 100
@@ -107,15 +107,15 @@ if height and weight and age and gender and activity_factor:
 
     print(new_record)
 
-# current_data = collection.find_one({"id": user_id})
-# if current_data:
-#     records = current_data.get("records", [])
-#     records.append(new_record)
-#     records = sorted(records, key=lambda x: x["date"], reverse=True)
-#     collection.update_one(
-#         {"id": user_id},
-#         {"$set": {"records": records}}
-#     )
-#     print(f"Đã thêm thông tin mới vào records cho user với ID {user_id}.")
-# else:
-#     print(f"Không tìm thấy user với ID {user_id}.")
+current_data = collection.find_one({"id": user_id})
+if current_data:
+    records = current_data.get("records", [])
+    records.append(new_record)
+    records = sorted(records, key=lambda x: x["date"], reverse=True)
+    collection.update_one(
+        {"id": user_id},
+        {"$set": {"records": records}}
+    )
+    print(f"Đã thêm thông tin mới vào records cho user với ID {user_id}.")
+else:
+    print(f"Không tìm thấy user với ID {user_id}.")
