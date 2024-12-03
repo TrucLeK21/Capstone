@@ -1,6 +1,8 @@
 from pymongo import MongoClient
 import json
 from bson.objectid import ObjectId
+from datetime import datetime
+
 
 # URI kết nối
 uri = "mongodb+srv://quanhoangit482212:482212@scaledb.bsgem.mongodb.net/?retryWrites=true&w=majority&appName=ScaleDB"
@@ -105,7 +107,7 @@ if result:
     gender = result.get("gender", "Không rõ")
     date_of_birth = result.get("dateOfBirth")
     height = result.get("records", [{}])[0].get("height", "Không rõ")
-    from datetime import datetime
+
     if date_of_birth:
         current_date = datetime.now()
         date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d")
@@ -120,7 +122,7 @@ if result:
 else:
     print(f"Không tìm thấy người dùng với ID: {user_id}")
 
-# Thông tin mới
+# # Thông tin mới
 new_record = {
     "height": 170,
     "weight": 65,
