@@ -52,10 +52,10 @@ class WeightCharacteristic(Characteristic):
     def WriteValue(self, value, options):
         byte_data = bytes(value)
         string_data = byte_data.decode('utf-8')
-        weight = float(string_data)
-        print(f"received: {weight}")
-        self.body_metrics = calc.get_body_metrics(height, weight, dob, gender, activity_factor)
-        print(self.body_metrics)
+        # weight = float(string_data)
+        print(f"received: {string_data}")
+        # self.body_metrics = calc.get_body_metrics(height, weight, dob, gender, activity_factor)
+        # print(self.body_metrics)
             
     def ReadValue(self, options):
         value = []
