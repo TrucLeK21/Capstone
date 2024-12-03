@@ -117,33 +117,32 @@ def get_ideal_weight(gender, height, orig=True):
     ideal_weight = (height - 100 + (height / 100)) if gender == 'male' else (height - 100 + ((height / 100) * 0.9))
     return round(check_val_overflow(ideal_weight, 5.5, 198), 2)  
 
-def get_body_metrics(height, weight, dob_str, gender, activity_factor):
-    # Age
-    age = calculate_age(dob_str)
-    
-    #Basic metrics
+def get_body_metrics(height, weight, age, gender, activity_factor):
+
     bmi = get_bmi(height, weight)
-    bmr, _ = get_bmr_tdee(weight, height, age, gender, activity_factor)
+    bmr, tdee = get_bmr_tdee(weight, height, age, gender, activity_factor)
+    lbm = get_lbm(height, weight, gender)
+    fat_percentage = get_fat_percentage(gender, age, weight, height)
     water_percentage = get_water_percentage(gender, age, weight, height)
     bone_mass = get_bone_mass(height, weight, gender)
     muscle_mass = get_muscle_mass(gender, age, weight, height)
-    fat_percentage = get_fat_percentage(gender, age, weight, height)
+    protein_percentage = get_protein_percentage(gender, age, weight, height, orig=True)
     visceral_fat = get_visceral_fat(gender, height, weight, age)
-    
-   
-    metabolic_age = max(age - 5, 18)
-    
+    idealWeight = get_ideal_weight(gender, height, orig=True)
    
     body_metrics = [
         {"name": "Weight", "value": weight, "unit": "Kg"},
         {"name": "BMI", "value": bmi, "unit": ""},
+        {"name": "BMR", "value": bmr, "unit": "kcal/day"},
+        {"name": "TDEE", "value": tdee, "unit": "kcal/day"},
+        {"name": "LBM", "value": lbm, "unit": "kg"},
+        {"name": "Fat %", "value": fat_percentage, "unit": "%"},
         {"name": "Water %", "value": water_percentage, "unit": "%"},
         {"name": "Bone Mass", "value": bone_mass, "unit": "kg"},
         {"name": "Muscle Mass", "value": muscle_mass, "unit": "kg"},
-        {"name": "Fat %", "value": fat_percentage, "unit": "%"},
-        {"name": "Visceral Fat", "value": visceral_fat, "unit": ""},
-        {"name": "Metabolic Age", "value": metabolic_age, "unit": "years"},
-        {"name": "BMR", "value": bmr, "unit": "kcal/day"},
+        {"name": "Protein %", "value": protein_percentage, "unit": "%"},
+        {"name": "Visceral Fat", "value": visceral_fat, "unit": "kg"},
+        {"name": "Ideal Weight", "value": idealWeight, "unit": "kg"},  
     ]
-    
+
     return body_metrics
