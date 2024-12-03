@@ -55,22 +55,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  bool isAnyFieldFilled() {
-    return _fullnameController.text.isNotEmpty ||
-        _heightController.text.isNotEmpty ||
-        _weightController.text.isNotEmpty ||
-        _selectedGender != null ||
-        _selectedDate != null;
-  }
+  // bool isAnyFieldFilled() {
+  //   return _fullnameController.text.isNotEmpty ||
+  //       _heightController.text.isNotEmpty ||
+  //       _weightController.text.isNotEmpty ||
+  //       _selectedGender != null ||
+  //       _selectedDate != null;
+  // }
 
   @override
   Widget build(BuildContext context) {
-    if (user == null) {
-      return const Center(
-        child:
-            CircularProgressIndicator(), // Hiển thị vòng xoay khi chưa có dữ liệu
-      );
-    }
+    // if (user == null) {
+    //   return const Center(
+    //     child:
+    //         CircularProgressIndicator(), // Hiển thị vòng xoay khi chưa có dữ liệu
+    //   );
+    // }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.superLightGray,
@@ -104,12 +104,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 labelText: 'Họ và tên',
                 border: OutlineInputBorder(),
               ),
-              // validator: (value) {
-              //   if (value == null || value.isEmpty) {
-              //     return 'Vui lòng nhập họ và tên';
-              //   }
-              //   return null;
-              // },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Vui lòng nhập họ và tên';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
 
@@ -131,12 +131,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _selectedGender = value;
                 });
               },
-              // validator: (value) {
-              //   if (value == null || value.isEmpty) {
-              //     return 'Vui lòng chọn giới tính';
-              //   }
-              //   return null;
-              // },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Vui lòng chọn giới tính';
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 16),
 
@@ -181,9 +181,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
-                // if (value == null || value.isEmpty) {
-                //   return 'Vui lòng nhập chiều cao';
-                // }
+                if (value == null || value.isEmpty) {
+                  return 'Vui lòng nhập chiều cao';
+                }
                 if (value != null &&
                     value.isNotEmpty &&
                     double.tryParse(value) == null) {
@@ -204,9 +204,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
-                // if (value == null || value.isEmpty) {
-                //   return 'Vui lòng nhập cân nặng';
-                // }
+                if (value == null || value.isEmpty) {
+                  return 'Vui lòng nhập cân nặng';
+                }
                 if (value != null &&
                     value.isNotEmpty &&
                     double.tryParse(value) == null) {
@@ -224,7 +224,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 fixedSize: const Size(150, 50),
               ),
               onPressed: () async {
-                if (_formKey.currentState!.validate() && isAnyFieldFilled()) {
+                if (_formKey.currentState!.validate()) {
                   var data = {
                     "fullName": _fullnameController.text,
                     "dateOfBirth": _selectedDate?.toIso8601String(),
@@ -246,7 +246,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                     );
                   }
-                  Navigator.popUntil(context, ModalRoute.withName('/profile'));
+                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                   // Xử lý lưu dữ liệu tại đây
                 }
               },

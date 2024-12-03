@@ -7,7 +7,6 @@ class AuthServices {
   final HttpServices _httpServices = HttpServices();
 
   Future<http.Response> register(Map<String, dynamic> data) async {
-    print(data);
     final res = await _httpServices.post('/auth/register', data: data);
 
     return res!;

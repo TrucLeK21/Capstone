@@ -61,7 +61,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildUI() {
-    return Container(
+  return Stack(
+    children: [
+      // Nội dung chính
+      Container(
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
         decoration: const BoxDecoration(
           color: AppColors.superLightGray,
@@ -74,16 +77,33 @@ class _HomePageState extends State<HomePage> {
                     .toJson()
                     .entries
                     .where((entry) =>
-                        entry.key !=
-                        "date") // Lọc ra các phần tử có key khác "date"
+                        entry.key != "date") // Lọc ra các phần tử có key khác "date"
                     .map((entry) {
                   return _infoCard(
                       entry.key, entry.value); // Trả về card cho mỗi entry
                 }).toList(),
             ],
           ),
-        ));
-  }
+        ),
+      ),
+      // Nút nổi
+      Positioned(
+        bottom: 20, // Khoảng cách từ cạnh dưới
+        right: 20,  // Khoảng cách từ cạnh phải
+        child: FloatingActionButton(
+          onPressed: () {
+            // Hành động khi nhấn nút
+            print('Floating Action Button Pressed!');
+          },
+          child: const Icon(Icons.monitor_weight,size: 40,), // Biểu tượng trên nút
+          backgroundColor: AppColors.mainColor, // Màu nền nút
+          foregroundColor: Colors.white, // Màu biểu tượng
+        ),
+      ),
+    ],
+  );
+}
+
 
   Widget _infoCard(String key, dynamic value) {
     return InkWell(
@@ -186,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   ],
                 ),
-                Column(
+                const Column(
                   children: [
                     Icon(
                       Icons.bar_chart,

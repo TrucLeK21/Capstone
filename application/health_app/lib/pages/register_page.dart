@@ -161,7 +161,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       var res = await AuthServices().register(data);
 
                       if (res.statusCode == 200) {
-                        Navigator.pushReplacementNamed(context, '/login');
+                        bool loginRes = await AuthServices().login(data);
+                        if(loginRes)
+                        {
+                          Navigator.pushNamedAndRemoveUntil(context, '/edit-profile', (route) => false);
+
+                        }
                       } else {
                         // Xử lý khi mã trạng thái khác 200
                         String message = "Registration failed";

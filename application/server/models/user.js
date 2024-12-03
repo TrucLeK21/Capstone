@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 const SALT_ROUNDS = 10;
 
@@ -91,6 +91,13 @@ const userSchema = new mongoose.Schema({
         }
     ],
 
+}, {
+    toObject: {
+        transform: function (doc, ret) {
+            delete ret._id; // Xóa trường _id
+            return ret;
+        }
+    }
 });
 
 userSchema.pre('save', async function (next) {
@@ -150,10 +157,10 @@ userSchema.pre('save', async function (next) {
             new Date(user.dateOfBirth) <= today;
 
         const age = isValidDateOfBirth
-            ? today.getFullYear() - new Date(user.dateOfBirth).getFullYear() - 
-              ((today.getMonth() < new Date(user.dateOfBirth).getMonth() || 
-                (today.getMonth() === new Date(user.dateOfBirth).getMonth() && 
-                 today.getDate() < new Date(user.dateOfBirth).getDate())) ? 1 : 0)
+            ? today.getFullYear() - new Date(user.dateOfBirth).getFullYear() -
+            ((today.getMonth() < new Date(user.dateOfBirth).getMonth() ||
+                (today.getMonth() === new Date(user.dateOfBirth).getMonth() &&
+                    today.getDate() < new Date(user.dateOfBirth).getDate())) ? 1 : 0)
             : null;
 
         const heightInMeters = heightValue ? heightValue / 100 : null;
