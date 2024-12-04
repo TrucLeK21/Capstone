@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:health_app/consts.dart';
 import 'package:health_app/models/metrics.dart';
 import 'package:health_app/models/user.dart';
+// import 'package:health_app/pages/ble_page.dart';
 import 'package:health_app/services/user_services.dart';
 import 'package:health_app/widgets/custom_footer.dart';
 
@@ -93,7 +94,7 @@ class _HomePageState extends State<HomePage> {
         child: FloatingActionButton(
           onPressed: () {
             // Hành động khi nhấn nút
-            print('Floating Action Button Pressed!');
+            Navigator.pushReplacementNamed(context, "/ble-screen");
           },
           child: const Icon(Icons.monitor_weight,size: 40,), // Biểu tượng trên nút
           backgroundColor: AppColors.mainColor, // Màu nền nút

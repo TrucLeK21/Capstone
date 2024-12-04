@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health_app/consts.dart';
+import 'package:health_app/pages/ble_page.dart';
 import 'package:health_app/pages/detail_page.dart';
 import 'package:health_app/pages/edit_profile_page.dart';
 import 'package:health_app/pages/family_page.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         "/family": (context) => const FamilyPage(),
         "/profile": (context) => const ProfilePage(),
         "/edit-profile": (context) => const EditProfilePage(),
+        "/ble-screen": (context) => const BlueetoothConnectionScreen(),
       },
     );
   }

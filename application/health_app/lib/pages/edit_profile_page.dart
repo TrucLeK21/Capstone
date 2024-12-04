@@ -1,3 +1,6 @@
+import 'dart:ffi' as fii; 
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 // import 'dart:io';
 
@@ -21,7 +24,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
       TextEditingController(); // Thêm controller cho cân nặng
   String? _selectedGender;
   DateTime? _selectedDate;
+  double? _selectedActivityFactor;
   final List<String> _genderOptions = ['male', 'female', 'other'];
+  final List<Map<String, double>> _activityFactorOptions = [
+    {"Ít hoạt động": 1.2},
+    {"Vận động nhẹ": 1.375},
+    {"Vận động vừa": 1.55},
+    {"Vận động nhiều": 1.725},
+    {"Vận động rất nhiều": 1.9}
+  ];
   User? user;
   Metrics? lastestRecord;
 
@@ -46,6 +57,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _weightController.text = lastestRecord?.weight.toString() ?? '';
           _selectedGender = user?.gender;
           _selectedDate = user?.dateOfBirth;
+          // _selectedActivityFactor =user?.activityFactor;
         });
       } else {
         print('Không thể tải thông tin người dùng');
@@ -218,6 +230,38 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const SizedBox(height: 16),
 
+            // Mức độ hoạt động
+            DropdownButtonFormField<double>(
+              decoration: const InputDecoration(
+                labelText: 'Mức độ hoạt động',
+                border: OutlineInputBorder(),
+              ),
+              value: _selectedActivityFactor,
+              items: _activityFactorOptions.map((factor) {
+                // Lấy key và value từ map
+                String activityLevel = factor.keys.first; // Key
+                double factorValue = factor.values.first; // Value
+
+                return DropdownMenuItem<double>(
+                  value: factorValue, // Set giá trị value là kiểu double
+                  child: Text(activityLevel), // Hiển thị key (mức độ hoạt động)
+                );
+              }).toList(),
+              onChanged: (double? value) {
+                setState(() {
+                  _selectedActivityFactor = value; // Cập nhật giá trị
+                });
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Vui lòng chọn mức độ hoạt động';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(
+              height: 16,
+            ),
             // Nút lưu
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -246,7 +290,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                     );
                   }
-                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/home', (route) => false);
                   // Xử lý lưu dữ liệu tại đây
                 }
               },

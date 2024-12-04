@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
         enum: ["male", "female", "other"],
         default: "other"
     },
+    activityFactor: {
+        type: Number,
+        enum: [1.2, 1.375, 1.55, 1.725, 1.9],
+    },
     group: {
         type: Number,
         default: null,
@@ -148,7 +152,6 @@ userSchema.pre('save', async function (next) {
         // Dữ liệu từ latestRecord (cập nhật từ bản ghi mới nhất)
         const weightValue = latestRecord.weight;
         const heightValue = latestRecord.height;
-        const groupValue = latestRecord.group;
 
         // Tính toán các chỉ số từ latestRecord
         const isValidDateOfBirth =
@@ -165,10 +168,11 @@ userSchema.pre('save', async function (next) {
 
         const heightInMeters = heightValue ? heightValue / 100 : null;
 
+        // Calculate BMI based on height (cm) and weight (kg)
         const bmi = weightValue && heightInMeters
             ? parseFloat((weightValue / (heightInMeters ** 2)).toFixed(2))
             : null;
-
+        // Calculate basal metabolic rate (BMR) and total daily energy expenditure (TDEE)
         let bmr = null;
         if (weightValue && heightValue && age !== null) {
             if (user.gender === 'male') {
@@ -177,22 +181,37 @@ userSchema.pre('save', async function (next) {
                 bmr = parseFloat((447.593 + (9.247 * weightValue) + (3.098 * heightValue) - (4.330 * age)).toFixed(2));
             }
         }
+        const tdee = bmr ? parseFloat((bmr * user.activityFactor).toFixed(2)) : null;
 
-        const tdee = bmr ? parseFloat((bmr * 1.2).toFixed(2)) : null; // Mặc định hoạt động nhẹ (activity factor = 1.2)
-        const lbm = weightValue && heightValue
-            ? parseFloat(((0.32810 * weightValue) + (0.33929 * heightValue) - 29.5336).toFixed(2))
-            : null;
+        //Calculate fat-free body mass (LBM)
+        // const lbm = weightValue && heightValue
+        //     ? parseFloat(((0.32810 * weightValue) + (0.33929 * heightValue) - 29.5336).toFixed(2))
+        //     : null;
+        let lbm = null;
+        if (weightValue && heightValue) {
+            if (user.gender === 'male') {
+                lbm = parseFloat(((0.32810 * weightValue) + (0.33929 * heightValue) - 29.5336).toFixed(2));
+            }
+            else {
+                lbm = parseFloat(((0.29569 * weightValue) + (0.41813 * heightValue) - 43.2933).toFixed(2));
 
-        const fatPercentage = weightValue && lbm
-            ? parseFloat((100 - (lbm / weightValue) * 100).toFixed(2))
-            : null;
+            }
+        }
+        // Calculate body fat percentage
+        // const fatPercentage = weightValue && lbm
+        //     ? parseFloat((100 - (lbm / weightValue) * 100).toFixed(2))
+        //     : null;
+        let fatPercentage = null;
+        if (weightValue && lbm) {
+            fatPercentage = parseFloat(((1.20 * (weightValue - lbm) / weightValue * 100) + (0.23 * age) - (user.gender === 'male' ? 10.8 : 0) - 5.4).toFixed(2));
+        }
 
         const waterPercentage = fatPercentage
-            ? parseFloat(((100 - fatPercentage) * 0.7).toFixed(2))
+            ? parseFloat(((100 - fatPercentage) * (user.gender === 'male' ? 0.55 : 0.49)).toFixed(2))
             : null;
 
         const boneMass = lbm
-            ? parseFloat(((0.18016894 - (lbm * 0.05158)) * -1).toFixed(2))
+            ? parseFloat((lbm * (user.gender === 'male' ? 0.175 : 0.15)).toFixed(2))
             : null;
 
         const muscleMass = weightValue && fatPercentage && boneMass
@@ -200,16 +219,38 @@ userSchema.pre('save', async function (next) {
             : null;
 
         const proteinPercentage = muscleMass && weightValue && waterPercentage
-            ? parseFloat(((muscleMass / weightValue) * 100 - waterPercentage).toFixed(2))
+            ? parseFloat(((muscleMass * 0.19 + weightValue * waterPercentage * 0.01 * 0.16) / weightValue * 100).toFixed(2))
             : null;
 
-        const visceralFat = age !== null
-            ? parseFloat((1.0 + (age * 0.07)).toFixed(2))
+        // const visceralFat = age !== null
+        //     ? parseFloat((1.0 + (age * 0.07)).toFixed(2))
+        //     : null;
+
+        const visceralFat = (age !== null && weightValue !== null && heightValue !== null)
+            ? parseFloat(
+                (
+                    user.gender === 'male'
+                        ? weightValue * 0.1 + age * 0.05 + (0.1 * (weightValue / heightValue))
+                        : weightValue * 0.08 + age * 0.06 + (0.08 * (weightValue / heightValue))
+                ).toFixed(2)
+            )
             : null;
 
-        const idealWeight = heightValue
-            ? parseFloat(((heightValue - 80) * 0.7).toFixed(2))
+
+        // const idealWeight = heightValue
+        //     ? parseFloat(((heightValue - 80) * 0.7).toFixed(2))
+        //     : null;
+
+        const idealWeight = heightValue !== null
+            ? parseFloat(
+                (
+                    user.gender === 'male'
+                        ? heightValue - 100 + (heightValue / 100)
+                        : heightValue - 100 + ((heightValue / 100) * 0.9)
+                ).toFixed(2)
+            )
             : null;
+
 
         // Thêm bản ghi mới vào records
         latestRecord.date = today;
