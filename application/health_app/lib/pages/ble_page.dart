@@ -3,7 +3,6 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:async';
 import 'dart:math';
 import 'dart:convert';
-
 import 'package:health_app/models/user.dart';
 import 'package:health_app/services/user_services.dart';
 
@@ -22,9 +21,9 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
   BluetoothCharacteristic? _readCharacteristic;
   final Guid characteristicUuidPi = Guid('00000002-cbd6-4d25-8851-18cb67b7c2d9');
   String progressText = "Connecting to BLE Server...";
-  Map<String, dynamic>? bodyMetrics;
+  // Map<String, dynamic>? bodyMetrics;
   bool isValid = false;
-  List<Map<String, dynamic>> bodyMetrics_test = [];
+  List<Map<String, dynamic>> bodyMetrics = [];
   User? user;
 
 
@@ -33,19 +32,6 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
     super.initState();
     scanAndConnect();
     _loadUserProfile();
-    
-  
-    bodyMetrics_test = [
-      {"name": "Weight", "value": widget.weight,"unit": "Kg"},
-      {"name": "BMI", "value": 22.5, "unit": ""},
-      {"name": "Water %", "value": 55.2, "unit": "%"},
-      {"name": "Bone Mass", "value": 3.2, "unit": "kg"},
-      {"name": "Muscle Mass", "value": 45.5, "unit": "kg"},
-      {"name": "Fat %", "value": 18.7, "unit": "%"},
-      {"name": "Visceral Fat", "value": 8, "unit": ""},
-      {"name": "Metabolic Age", "value": 25, "unit": "years"},
-      {"name": "BMR", "value": 1500, "unit": "kcal/day"},
-    ];
   }
 
     // Hàm lấy thông tin người dùng
@@ -125,15 +111,18 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
         "id": user?.id,
         "weight": widget.weight
       };
-      await _writeCharacteristic!.write(data.toString().codeUnits);
-      startPeriodicReading();
-      print("Data written: ${widget.weight}");
+
+      String string_data = jsonEncode(data);
+
+      await _writeCharacteristic!.write(string_data.toString().codeUnits);
+      startPeriodicReading(string_data);
+      print("Data written: ${data}");
     } else {
       print("Write characteristic not found.");
     }
   }
 
-  void startPeriodicReading() async {
+  void startPeriodicReading(final data) async {
     const duration = Duration(milliseconds: 400);
     final startTime = DateTime.now();
 
@@ -142,8 +131,8 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
     });
 
     Timer.periodic(duration, (timer) async {
-      // Stop after 5 seconds
-      if (DateTime.now().difference(startTime).inSeconds >= 20) {
+      // Stop after 20 seconds
+      if (DateTime.now().difference(startTime).inSeconds >= 10) {
         timer.cancel();
         if (!isValid) {
           setState(() {
@@ -153,27 +142,29 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
         return;
       }
 
-      await _writeCharacteristic!.write(widget.weight.toString().codeUnits);
-
-      // Wait 100ms
+      // Wait for a moment before reading
       await Future.delayed(const Duration(milliseconds: 400));
 
       // Read data from the server
       List<int> value = await _readCharacteristic!.read();
       String string_data = String.fromCharCodes(value);
-
+      print("string_data: $string_data");
 
       // Validate the response
       if (isValidData(string_data)) {
-        bodyMetrics = jsonDecode(string_data);
-        bodyMetrics_test.firstWhere((metric) => metric['name'] == 'BMI',)['value'] = bodyMetrics?['bmi'];
+        Map<String, dynamic> data = jsonDecode(string_data);
+        listMaker(data);
+
+        print("metric $bodyMetrics");
         timer.cancel();
 
-        // If data is valid (not '{}')
+        // If data is valid (not '[]')
         setState(() {
           isValid = true;
         });
       } else {
+        // await _writeCharacteristic!.write(data.toString().codeUnits);
+
         setState(() {
           progressText = "Error: Invalid data received.";
         });
@@ -182,11 +173,28 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
   }
 
   bool isValidData(String data) {
-    if (data == '{}') {
+    if (data == '[]') {
       return false;
     } else {
       return true;
     }
+  }
+
+  void listMaker(Map<String, dynamic> data) {
+    bodyMetrics = [
+      {"name": "Weight", "value": data['weight'], "unit": "Kg"},
+      {"name": "BMI", "value": data['bmi'], "unit": ""},
+      {"name": "BMR", "value": data['bmr'], "unit": "kcal/day"},
+      {"name": "TDEE", "value": data['tdee'], "unit": "kcal/day"},
+      {"name": "LBM", "value": data['lbm'], "unit": "kg"},
+      {"name": "Fat %", "value": data['fat_percentage'], "unit": "%"},
+      {"name": "Water %", "value": data['water_percentage'], "unit": "%"},
+      {"name": "Bone Mass", "value": data['bone_mass'], "unit": "kg"},
+      {"name": "Muscle Mass", "value": data['muscle_mass'], "unit": "kg"},
+      {"name": "Protein %", "value": data['protein_percentage'], "unit": "%"},
+      {"name": "Visceral Fat", "value": data['visceral_fat'], "unit": "kg"},
+      {"name": "Ideal Weight", "value": data['ideal_weight'], "unit": "kg"}
+    ];
   }
 
   @override
@@ -258,6 +266,10 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
                     fontFamily: 'Roboto',
                   )
                 ),
+                ElevatedButton(
+                  onPressed: scanAndConnect,
+                  child: Text("Retry")
+                ),
               ],
             ),
           ),
@@ -271,9 +283,9 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
         ),
         body: ListView.builder(
           padding: const EdgeInsets.all(16.0),
-          itemCount: bodyMetrics_test.length,
+          itemCount: bodyMetrics.length,
           itemBuilder: (context, index) {
-            final metric = bodyMetrics_test[index];
+            final metric = bodyMetrics[index];
             return Card(
               elevation: 4,
               margin: const EdgeInsets.symmetric(vertical: 8.0),
