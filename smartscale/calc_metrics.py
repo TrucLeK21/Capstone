@@ -130,19 +130,19 @@ def get_body_metrics(height, weight, age, gender, activity_factor):
     visceral_fat = get_visceral_fat(gender, height, weight, age)
     idealWeight = get_ideal_weight(gender, height, orig=True)
    
-    body_metrics = [
-        {"name": "Weight", "value": weight, "unit": "Kg"},
-        {"name": "BMI", "value": bmi, "unit": ""},
-        {"name": "BMR", "value": bmr, "unit": "kcal/day"},
-        {"name": "TDEE", "value": tdee, "unit": "kcal/day"},
-        {"name": "LBM", "value": lbm, "unit": "kg"},
-        {"name": "Fat %", "value": fat_percentage, "unit": "%"},
-        {"name": "Water %", "value": water_percentage, "unit": "%"},
-        {"name": "Bone Mass", "value": bone_mass, "unit": "kg"},
-        {"name": "Muscle Mass", "value": muscle_mass, "unit": "kg"},
-        {"name": "Protein %", "value": protein_percentage, "unit": "%"},
-        {"name": "Visceral Fat", "value": visceral_fat, "unit": "kg"},
-        {"name": "Ideal Weight", "value": idealWeight, "unit": "kg"},  
-    ]
-
+    body_metrics = {
+    "weight": weight,
+    "bmi": bmi,
+    "bmr": bmr,
+    "tdee": tdee,
+    "lbm": lbm,
+    "fat_percentage": fat_percentage,
+    "water_percentage": water_percentage,
+    "bone_mass": bone_mass,
+    "muscle_mass": muscle_mass,
+    "protein_percentage": protein_percentage,
+    "visceral_fat": visceral_fat,
+    "ideal_weight": idealWeight
+    }
+    
     return body_metrics

@@ -2,11 +2,10 @@
 
 import dbus
 import json
-import asyncio
+import threading
 from advertisement import Advertisement
 from service import Application, Service, Characteristic, Descriptor
-import calc_metrics as calc
-# from scan import my_scanner
+from dbcontroller import dbcontroller
 
 
 GATT_CHRC_IFACE = "org.bluez.GattCharacteristic1"
@@ -17,11 +16,30 @@ dob = "15/08/1995"
 gender = "male"
 activity_factor = 1.55  
 
+json_data = {
+    "id": 2,
+    "weight": 64
+}
 
-def calculate_bmi (weight):
-    height = 1.7
-    BMI = round(weight/(height**2), 2)
-    return BMI
+calculate_task = threading.Thread(target=dbcontroller.process_data, args=(json_data['id'], json_data['weight']))
+calculate_task.start()
+calculate_task.join()
+
+body_metrics = {
+  "weight": 64.1,
+  "bmi": 23.1,
+  "bmr": 1578,
+  "tdee": 2304.55,
+  "lbm": 50.72,
+  "fat_percentage": 18.3,
+  "water_percentage": 47.2,
+  "bone_mass": 7.8,
+  "muscle_mass": 46.15,
+  "protein_percentage": 21.5,
+  "visceral_fat": 8.21,
+  "ideal_weight": 70.4
+}
+
 
 class WeightScaleAdvertisement(Advertisement):
     def __init__(self, index):
@@ -39,7 +57,6 @@ class WeightService(Service):
         self.add_characteristic(WeightCharacteristic(self))
         
 class WeightCharacteristic(Characteristic):
-    body_metrics = []
     WEIGHT_CHARACTERISTIC_UUID = "00000002-cbd6-4d25-8851-18cb67b7c2d9"
     
     def __init__(self, service):
@@ -53,14 +70,14 @@ class WeightCharacteristic(Characteristic):
         byte_data = bytes(value)
         string_data = byte_data.decode('utf-8')
         json_data = json.loads(string_data)
-        # weight = float(string_data)
         print(f"received: {string_data}")
-        # self.body_metrics = calc.get_body_metrics(height, weight, dob, gender, activity_factor)
-        # print(self.body_metrics)
+        
+        calculate_task = threading.Thread(target=dbcontroller.process_data, args=(json_data['id'], json_data['weight']))
+        calculate_task.start()
             
     def ReadValue(self, options):
         value = []
-        json_string = json.dumps(self.body_metrics)
+        json_string = json.dumps(dbcontroller.get_body_metrics())
         
         for c in json_string:                                                                                 
             value.append(dbus.Byte(c.encode())) 
