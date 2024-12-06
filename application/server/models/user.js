@@ -194,7 +194,6 @@ userSchema.pre('save', async function (next) {
             }
             else {
                 lbm = parseFloat(((0.29569 * weightValue) + (0.41813 * heightValue) - 43.2933).toFixed(2));
-
             }
         }
         // Calculate body fat percentage
@@ -275,10 +274,102 @@ userSchema.pre('save', async function (next) {
     }
 });
 
-
-
-
 userSchema.methods.matchPassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
+
+function getAge(dateOfBirth) {
+    const today = new Date();
+    if (dateOfBirth && !isNaN(new Date(dateOfBirth)) && new Date(dateOfBirth) <= today) {
+        today.getFullYear() - new Date(dateOfBirth).getFullYear() - (
+            ((today.getMonth() < new Date(user.dateOfBirth).getMonth() ||
+                (today.getMonth() === new Date(user.dateOfBirth).getMonth() &&
+                    today.getDate() < new Date(user.dateOfBirth).getDate())) ? 1 : 0)
+        )
+    }
+    return null;
+}
+function getBmi(weight, height) {
+    if (weight && height) {
+        return parseFloat((weight / (height ** 2)).toFixed(2));
+    }
+    return null;
+}
+
+function getBmr(weight, height, age, gender) {
+    if (weight && height && age && gender) {
+        if (gender === 'male') {
+            return parseFloat((88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)).toFixed(2));
+        }
+        else {
+            return parseFloat((447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)).toFixed(2));
+        }
+    }
+    return null;
+}
+
+function getLbm(weight, height, gender) {
+    if (weight && height && gender) {
+        if (gender === 'male') {
+            return parseFloat(((0.32810 * weight) + (0.33929 * height) - 29.5336).toFixed(2));
+        }
+        else {
+            return parseFloat(((0.29569 * weight) + (0.41813 * height) - 43.2933).toFixed(2));
+        }
+    }
+    return null;
+}
+
+function getFatPercentage(weight, height, age, gender) {
+    let lbm = getLbm(weight, height, gender);
+    if (lbm) return parseFloat(((1.20 * (weight - lbm) / weight * 100) + (0.23 * age) - (gender === 'male' ? 10.8 : 0) - 5.4).toFixed(2));
+    return null;
+}
+
+function getWaterPercentage(weight, height, age, gender) {
+    let fatPercentage = getFatPercentage(weight, height, age, gender);
+    if (fatPercentage) return parseFloat(((100 - fatPercentage) * (gender === 'male' ? 0.55 : 0.49)).toFixed(2));
+    return null;
+}
+
+function getBoneMass(weight, height, gender) {
+    let lbm = getLbm(weight, height, gender);
+    if (lbm) return parseFloat((lbm * (gender === 'male' ? 0.175 : 0.15)).toFixed(2));
+    return null;
+}
+
+function getMuscleMass(weight, height, age, gender) {
+    let fatPercentage = getFatPercentage(weight, height, age, gender);
+    let boneMass = getBoneMass(weight, height, gender);
+    if (fatPercentage && boneMass) return parseFloat((weight - (fatPercentage * 0.01 * weight) - boneMass).toFixed(2));
+    return null;
+}
+
+function getVisceralFat(weight, height, age, gender) {
+    if (weight, height, age, gender) {
+        return parseFloat(
+            (
+                gender === 'male'
+                    ? weight * 0.1 + age * 0.05 + (0.1 * (weight / height))
+                    : weight * 0.08 + age * 0.06 + (0.08 * (weight / height))
+            ).toFixed(2)
+        );
+    }
+    return null;
+}
+
+function getIdealWeight(height, gender) {
+    if (height && gender) {
+        return parseFloat(
+            (
+                gender === 'male'
+                    ? height - 100 + (height / 100)
+                    : height - 100 + ((height / 100) * 0.9)
+            ).toFixed(2)
+        );
+    }
+    return null;
+}
+
+
 export default mongoose.model('User', userSchema, 'users');
