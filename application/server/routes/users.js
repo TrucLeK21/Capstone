@@ -43,7 +43,7 @@ const unitMap = {
 //put api
 
 router.put(`/update`, protect, async (req, res) => {
-  const { fullName, dateOfBirth, gender, height, weight } = req.body;
+  const { fullName, dateOfBirth, gender, height, weight, activityFactor } = req.body;
 
   try {
     const user = await User.findOne({ id: req.user.id });
@@ -52,20 +52,12 @@ router.put(`/update`, protect, async (req, res) => {
     }
 
     if (fullName) user.fullName = fullName;
-    if (dateOfBirth) user.dateOfBirth = dateOfBirth;
-    if (gender) user.gender = gender;
-    const latestRecord = user.records
-      ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
-    if (height || weight) {
-      const newRecords = {
-        height: height ? height : latestRecord.height,
-        weight: weight ? weight : latestRecord.weight,
-      }
-      user.records.push(newRecords);
-    }
+    
+    const updatedUser = await user.addRecord({ weight, height, dateOfBirth, gender, activityFactor });
+    
     console.log("update user:");
     console.log(user);
-    const updatedUser = await user.save();
+
     res.status(200).json({
       message: 'Cập nhật user thành công',
       user: updatedUser,

@@ -106,7 +106,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function (next) {
     const user = this;
-    const today = new Date();
 
     try {
         // Hash mật khẩu nếu có sự thay đổi
@@ -120,154 +119,6 @@ userSchema.pre('save', async function (next) {
             const count = await mongoose.model('User').countDocuments(); // Đếm số lượng user trong collection
             user.id = count + 1; // Gán id bằng số lượng user hiện tại + 1
         }
-
-        // Lấy bản ghi mới nhất trong records (nếu có)
-        let latestRecord = user.records
-            ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
-
-        // Nếu không có bản ghi nào, khởi tạo bản ghi mới
-        if (!latestRecord) {
-            user.records = [
-                {
-                    date: today,
-                    height: null,
-                    weight: null,
-                    age: null,
-                    bmi: null,
-                    bmr: null,
-                    tdee: null,
-                    lbm: null,
-                    fatPercentage: null,
-                    waterPercentage: null,
-                    boneMass: null,
-                    muscleMass: null,
-                    proteinPercentage: null,
-                    visceralFat: null,
-                    idealWeight: null,
-                },
-            ];
-            latestRecord = user.records[0];
-        }
-
-        // Dữ liệu từ latestRecord (cập nhật từ bản ghi mới nhất)
-        const weightValue = latestRecord.weight;
-        const heightValue = latestRecord.height;
-
-        // Tính toán các chỉ số từ latestRecord
-        const isValidDateOfBirth =
-            user.dateOfBirth &&
-            !isNaN(new Date(user.dateOfBirth)) &&
-            new Date(user.dateOfBirth) <= today;
-
-        const age = isValidDateOfBirth
-            ? today.getFullYear() - new Date(user.dateOfBirth).getFullYear() -
-            ((today.getMonth() < new Date(user.dateOfBirth).getMonth() ||
-                (today.getMonth() === new Date(user.dateOfBirth).getMonth() &&
-                    today.getDate() < new Date(user.dateOfBirth).getDate())) ? 1 : 0)
-            : null;
-
-        const heightInMeters = heightValue ? heightValue / 100 : null;
-
-        // Calculate BMI based on height (cm) and weight (kg)
-        const bmi = weightValue && heightInMeters
-            ? parseFloat((weightValue / (heightInMeters ** 2)).toFixed(2))
-            : null;
-        // Calculate basal metabolic rate (BMR) and total daily energy expenditure (TDEE)
-        let bmr = null;
-        if (weightValue && heightValue && age !== null) {
-            if (user.gender === 'male') {
-                bmr = parseFloat((88.362 + (13.397 * weightValue) + (4.799 * heightValue) - (5.677 * age)).toFixed(2));
-            } else if (user.gender === 'female') {
-                bmr = parseFloat((447.593 + (9.247 * weightValue) + (3.098 * heightValue) - (4.330 * age)).toFixed(2));
-            }
-        }
-        const tdee = bmr ? parseFloat((bmr * user.activityFactor).toFixed(2)) : null;
-
-        //Calculate fat-free body mass (LBM)
-        // const lbm = weightValue && heightValue
-        //     ? parseFloat(((0.32810 * weightValue) + (0.33929 * heightValue) - 29.5336).toFixed(2))
-        //     : null;
-        let lbm = null;
-        if (weightValue && heightValue) {
-            if (user.gender === 'male') {
-                lbm = parseFloat(((0.32810 * weightValue) + (0.33929 * heightValue) - 29.5336).toFixed(2));
-            }
-            else {
-                lbm = parseFloat(((0.29569 * weightValue) + (0.41813 * heightValue) - 43.2933).toFixed(2));
-            }
-        }
-        // Calculate body fat percentage
-        // const fatPercentage = weightValue && lbm
-        //     ? parseFloat((100 - (lbm / weightValue) * 100).toFixed(2))
-        //     : null;
-        let fatPercentage = null;
-        if (weightValue && lbm) {
-            fatPercentage = parseFloat(((1.20 * (weightValue - lbm) / weightValue * 100) + (0.23 * age) - (user.gender === 'male' ? 10.8 : 0) - 5.4).toFixed(2));
-        }
-
-        const waterPercentage = fatPercentage
-            ? parseFloat(((100 - fatPercentage) * (user.gender === 'male' ? 0.55 : 0.49)).toFixed(2))
-            : null;
-
-        const boneMass = lbm
-            ? parseFloat((lbm * (user.gender === 'male' ? 0.175 : 0.15)).toFixed(2))
-            : null;
-
-        const muscleMass = weightValue && fatPercentage && boneMass
-            ? parseFloat((weightValue - (fatPercentage * 0.01 * weightValue) - boneMass).toFixed(2))
-            : null;
-
-        const proteinPercentage = muscleMass && weightValue && waterPercentage
-            ? parseFloat(((muscleMass * 0.19 + weightValue * waterPercentage * 0.01 * 0.16) / weightValue * 100).toFixed(2))
-            : null;
-
-        // const visceralFat = age !== null
-        //     ? parseFloat((1.0 + (age * 0.07)).toFixed(2))
-        //     : null;
-
-        const visceralFat = (age !== null && weightValue !== null && heightValue !== null)
-            ? parseFloat(
-                (
-                    user.gender === 'male'
-                        ? weightValue * 0.1 + age * 0.05 + (0.1 * (weightValue / heightValue))
-                        : weightValue * 0.08 + age * 0.06 + (0.08 * (weightValue / heightValue))
-                ).toFixed(2)
-            )
-            : null;
-
-
-        // const idealWeight = heightValue
-        //     ? parseFloat(((heightValue - 80) * 0.7).toFixed(2))
-        //     : null;
-
-        const idealWeight = heightValue !== null
-            ? parseFloat(
-                (
-                    user.gender === 'male'
-                        ? heightValue - 100 + (heightValue / 100)
-                        : heightValue - 100 + ((heightValue / 100) * 0.9)
-                ).toFixed(2)
-            )
-            : null;
-
-
-        // Thêm bản ghi mới vào records
-        latestRecord.date = today;
-        latestRecord.height = heightValue;
-        latestRecord.weight = weightValue;
-        latestRecord.age = age;
-        latestRecord.bmi = bmi;
-        latestRecord.bmr = bmr;
-        latestRecord.tdee = tdee;
-        latestRecord.lbm = lbm;
-        latestRecord.fatPercentage = fatPercentage;
-        latestRecord.waterPercentage = waterPercentage;
-        latestRecord.boneMass = boneMass;
-        latestRecord.muscleMass = muscleMass;
-        latestRecord.proteinPercentage = proteinPercentage;
-        latestRecord.visceralFat = visceralFat;
-        latestRecord.idealWeight = idealWeight;
-
         next();
     } catch (error) {
         next(error);
@@ -278,19 +129,69 @@ userSchema.methods.matchPassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
+userSchema.methods.addRecord = function({weight, height, dateOfBirth, gender, activityFactor}) {
+    this.activityFactor = activityFactor;
+    this.dateOfBirth = dateOfBirth;
+    this.gender = gender;
+    
+    const date = new Date();
+    const age = getAge(dateOfBirth);
+    const bmi = getBmi(weight, height);
+    const bmr = getBmr(weight, height, age, gender);
+    const tdee = getTdee(weight, height, age, gender, activityFactor);
+    const lbm = getLbm(weight, height, gender);
+    const fatPercentage = getFatPercentage(weight, height, age, gender);
+    const waterPercentage = getWaterPercentage(weight, height, age, gender);
+    const boneMass = getBoneMass(weight, height, gender);
+    const muscleMass = getMuscleMass(weight, height, age, gender);
+    const proteinPercentage = getProteinPercentage(weight, height, age, gender);
+    const visceralFat = getVisceralFat(weight, height, age, gender);
+    const idealWeight = getIdealWeight(height, gender);
+
+    const newRecord = {
+        date, 
+        height,
+        weight,
+        age,
+        bmi,
+        bmr,
+        tdee,
+        lbm,
+        fatPercentage,
+        waterPercentage,
+        boneMass,
+        muscleMass,
+        proteinPercentage,
+        visceralFat,
+        idealWeight,
+    }
+
+    this.records.push(newRecord);
+    return this.save();
+}
+
 function getAge(dateOfBirth) {
     const today = new Date();
-    if (dateOfBirth && !isNaN(new Date(dateOfBirth)) && new Date(dateOfBirth) <= today) {
-        today.getFullYear() - new Date(dateOfBirth).getFullYear() - (
-            ((today.getMonth() < new Date(user.dateOfBirth).getMonth() ||
-                (today.getMonth() === new Date(user.dateOfBirth).getMonth() &&
-                    today.getDate() < new Date(user.dateOfBirth).getDate())) ? 1 : 0)
-        )
+    const birthDate = new Date(dateOfBirth);
+    if (isNaN(birthDate) || birthDate > today) {
+        return null;
     }
-    return null;
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const isBirthdayPassed = (
+        today.getMonth() > birthDate.getMonth() || 
+        (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate())
+    );
+
+    if (!isBirthdayPassed) {
+        age--;
+    }
+    return age;
 }
+
 function getBmi(weight, height) {
     if (weight && height) {
+        height = height / 100; // change to meter
         return parseFloat((weight / (height ** 2)).toFixed(2));
     }
     return null;
@@ -305,6 +206,12 @@ function getBmr(weight, height, age, gender) {
             return parseFloat((447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)).toFixed(2));
         }
     }
+    return null;
+}
+
+function getTdee(weight, height, age, gender, activityFactor) {
+    let bmr = getBmr(weight, height, age, gender);
+    if(bmr) return parseFloat((bmr * activityFactor).toFixed(2));
     return null;
 }
 
@@ -342,6 +249,13 @@ function getMuscleMass(weight, height, age, gender) {
     let fatPercentage = getFatPercentage(weight, height, age, gender);
     let boneMass = getBoneMass(weight, height, gender);
     if (fatPercentage && boneMass) return parseFloat((weight - (fatPercentage * 0.01 * weight) - boneMass).toFixed(2));
+    return null;
+}
+
+function getProteinPercentage(weight, height, age, gender) {
+    let muscleMass = getMuscleMass(weight, height, age, gender);
+    let waterPercentage = getWaterPercentage(weight, height, age, gender);
+    if(muscleMass && waterPercentage) return parseFloat(((muscleMass * 0.19 + weight * waterPercentage * 0.01 * 0.16) / weight * 100).toFixed(2));
     return null;
 }
 
