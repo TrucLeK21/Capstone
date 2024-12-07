@@ -85,7 +85,7 @@ router.get(`/profile`, protect, async (req, res) => {
 });
 
 //get lastest record 
-router.get(`/lastestRecord`, protect, async (req, res) => {
+router.get(`/latestRecord`, protect, async (req, res) => {
   try {
     let user = await User.findOne({ id: req.user.id });
     if (!user) {

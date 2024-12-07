@@ -19,13 +19,22 @@ app.use(
   })
 );
 
-const HOST = '192.168.1.14';
-
-app.listen(port, HOST, () => {
+// 🔥 Lấy địa chỉ IP khả dụng tự động
+const getLocalExternalIP = () => {
   const networkInterfaces = os.networkInterfaces();
-  const ip = Object.values(networkInterfaces)
+  const ipAddress = Object.values(networkInterfaces)
     .flat()
     .find((details) => details.family === 'IPv4' && !details.internal)?.address;
+  return ipAddress || '0.0.0.0'; // Trả về '0.0.0.0' nếu không tìm thấy IP nào
+};
+
+const HOST = getLocalExternalIP();;
+
+app.listen(port, HOST, () => {
+  // const networkInterfaces = os.networkInterfaces();
+  // const ip = Object.values(networkInterfaces)
+  //   .flat()
+  //   .find((details) => details.family === 'IPv4' && !details.internal)?.address;
 
   console.log(`Server is running on: http://${HOST || 'localhost'}:${port}${api_url}`);
 });

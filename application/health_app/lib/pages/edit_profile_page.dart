@@ -1,6 +1,3 @@
-import 'dart:ffi' as fii; 
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 // import 'dart:io';
 
@@ -196,9 +193,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 if (value == null || value.isEmpty) {
                   return 'Vui lòng nhập chiều cao';
                 }
-                if (value != null &&
-                    value.isNotEmpty &&
-                    double.tryParse(value) == null) {
+                if (value.isNotEmpty && double.tryParse(value) == null) {
                   return 'Vui lòng nhập số hợp lệ';
                 }
 
@@ -219,9 +214,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 if (value == null || value.isEmpty) {
                   return 'Vui lòng nhập cân nặng';
                 }
-                if (value != null &&
-                    value.isNotEmpty &&
-                    double.tryParse(value) == null) {
+                if (value.isNotEmpty && double.tryParse(value) == null) {
                   return 'Vui lòng nhập số hợp lệ';
                 }
 

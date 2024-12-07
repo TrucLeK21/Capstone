@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:health_app/consts.dart';
-import 'package:health_app/models/metrics.dart';
+// import 'package:health_app/models/metrics.dart';
 import 'package:health_app/models/user.dart';
 // import 'package:health_app/pages/ble_page.dart';
 import 'package:health_app/services/user_services.dart';
@@ -16,7 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final int index = 0;
   User? user;
-  Metrics? lastestRecord;
+  DateTime? latestDate;
+  List<dynamic>? latestRecord;
 
   @override
   void initState() {
@@ -29,12 +30,23 @@ class _HomePageState extends State<HomePage> {
   void _loadUserProfile() async {
     try {
       final profile = await userServices().profile();
+      final res = await userServices().getLatestRecord();
 
       if (profile != null) {
         setState(() {
           user = profile;
-          lastestRecord = profile.getLatestRecord();
         });
+        if (res != null) {
+          latestRecord = res;
+          final dateRecord = latestRecord?.firstWhere(
+              (record) => record['key'] == 'date',
+              orElse: () => null);
+          latestDate = dateRecord != null
+              ? DateTime.tryParse(dateRecord['value'])
+              : null;
+        }
+        print(latestDate);
+        print(latestRecord);
       } else {
         print('Không thể tải thông tin người dùng');
       }
@@ -62,58 +74,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildUI() {
-  return Stack(
-    children: [
-      // Nội dung chính
-      Container(
-        padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
-        decoration: const BoxDecoration(
-          color: AppColors.superLightGray,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              if (lastestRecord != null)
-                ...lastestRecord!
-                    .toJson()
-                    .entries
-                    .where((entry) =>
-                        entry.key != "date") // Lọc ra các phần tử có key khác "date"
-                    .map((entry) {
-                  return _infoCard(
-                      entry.key, entry.value); // Trả về card cho mỗi entry
-                }).toList(),
-            ],
+    return Stack(
+      children: [
+        // Nội dung chính
+        Container(
+          padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+          decoration: const BoxDecoration(
+            color: AppColors.superLightGray,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                if (latestRecord != null)
+                  ...latestRecord!.map((record) {
+                    if (record['key'] != 'date' && record['key'] != '_id') {
+                      return _infoCard(record['name'], record['value'],
+                          record['unit'] ?? '', latestDate);
+                    }
+                    return SizedBox();
+                  }).toList()
+              ],
+            ),
           ),
         ),
-      ),
-      // Nút nổi
-      Positioned(
-        bottom: 20, // Khoảng cách từ cạnh dưới
-        right: 20,  // Khoảng cách từ cạnh phải
-        child: FloatingActionButton(
-          onPressed: () {
-            // Hành động khi nhấn nút
-            Navigator.pushReplacementNamed(context, "/ble-screen");
-          },
-          child: const Icon(Icons.monitor_weight,size: 40,), // Biểu tượng trên nút
-          backgroundColor: AppColors.mainColor, // Màu nền nút
-          foregroundColor: Colors.white, // Màu biểu tượng
+        // Nút nổi
+        Positioned(
+          bottom: 20, // Khoảng cách từ cạnh dưới
+          right: 20, // Khoảng cách từ cạnh phải
+          child: FloatingActionButton(
+            onPressed: () {
+              // Hành động khi nhấn nút
+              Navigator.pushReplacementNamed(context, "/ble-screen");
+            },
+            backgroundColor: AppColors.mainColor, // Màu nền nút
+            foregroundColor: Colors.white, // Màu biểu tượng
+            child: const Icon(
+              Icons.monitor_weight,
+              size: 40,
+            ), // Biểu tượng trên nút
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-
-  Widget _infoCard(String key, dynamic value) {
+  Widget _infoCard(String key, dynamic value, String? unit, DateTime? date) {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, '/detail');
       },
       child: Container(
         width: double.infinity,
-        height: 160,
+        height: 165,
         margin: const EdgeInsets.only(top: 10),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -142,12 +154,16 @@ class _HomePageState extends State<HomePage> {
                       size: 32,
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      key,
-                      style: const TextStyle(
-                        color: AppColors.mainColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
+                    Container(
+                      width: 130,
+                      child: Text(
+                        key,
+                        style: const TextStyle(
+                          color: AppColors.mainColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                        softWrap: true,
                       ),
                     ),
                   ],
@@ -155,8 +171,8 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Text(
-                      lastestRecord?.date != null
-                          ? "${lastestRecord!.date!.day.toString().padLeft(2, '0')}/${lastestRecord!.date!.month.toString().padLeft(2, '0')}/${lastestRecord!.date!.year}"
+                      latestDate != null
+                          ? "${latestDate!.day.toString().padLeft(2, '0')}/${latestDate!.month.toString().padLeft(2, '0')}/${latestDate!.year}"
                           : "",
                       style: const TextStyle(
                         color: AppColors.boldGray,
@@ -196,8 +212,8 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(
                           width: 15,
                         ),
-                        const Text(
-                          "kg",
+                        Text(
+                          unit ?? "",
                           style: TextStyle(
                             fontSize: 20,
                             color: AppColors.mediumGray,

@@ -8,6 +8,7 @@ class User {
   String? fullName;
   DateTime? dateOfBirth;
   String? gender;
+  double? activityFactor;
   int? group;
   List<Metrics>? records;
 
@@ -18,6 +19,7 @@ class User {
     this.fullName,
     this.dateOfBirth,
     this.gender,
+    this.activityFactor,
     this.group,
     this.records,
   });
@@ -38,6 +40,7 @@ class User {
           ? DateTime.parse(json['dateOfBirth'])
           : null,
       gender: json['gender'] ?? '',
+      activityFactor: json['activityFactor'] ?? 1.2,
       group: json['group'] ?? null,
       records: json['records'] != null
           ? List<Map<String, dynamic>>.from(json['records'])
@@ -56,6 +59,7 @@ class User {
       'fullName': fullName,
       'dateOfBirth': dateOfBirth?.toIso8601String(),
       'gender': gender,
+      'activityFactor': activityFactor,
       'group': group,
       'records': records?.map((x) => x.toJson()).toList(),
     };
@@ -68,6 +72,7 @@ class User {
     String? fullName,
     DateTime? dateOfBirth,
     String? gender,
+    double? activityFactor,
     int? group,
     List<Metrics>? records,
   }) =>
@@ -78,6 +83,7 @@ class User {
         fullName: fullName ?? this.fullName,
         dateOfBirth: dateOfBirth ?? this.dateOfBirth,
         gender: gender ?? this.gender,
+        activityFactor: activityFactor ?? this.activityFactor,
         group: group ?? this.group,
         records: records ?? this.records,
       );

@@ -12,14 +12,12 @@ class userServices {
     }
 
     final res = await HttpServices().get('/users/profile', headers: header);
-    if(res!.statusCode == 200){
+    if (res!.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(res.body);
       User user = User.fromJson(data);
       print(user);
       return user;
-    }
-    else
-    {
+    } else {
       return null;
     }
   }
@@ -30,15 +28,29 @@ class userServices {
     if (token != null) {
       header['Authorization'] = 'Bearer $token';
     }
-    final res = await HttpServices().put('/users/update', data, headers: header);
-    if(res!.statusCode == 200){
+    final res =
+        await HttpServices().put('/users/update', data, headers: header);
+    if (res!.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(res.body);
       print(data);
       return true;
-    }
-    else
-    {
+    } else {
       return false;
+    }
+  }
+
+  Future<List<dynamic>?> getLatestRecord() async {
+    String? token = UserSession().token;
+    Map<String, String> header = {};
+    if (token != null) {
+      header['Authorization'] = 'Bearer $token';
+    }
+    final res =
+        await HttpServices().get('/users/latestRecord', headers: header);
+    if (res!.statusCode == 200) {
+      return jsonDecode(res.body);
+    } else {
+      return null;
     }
   }
 }
