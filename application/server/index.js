@@ -19,14 +19,15 @@ app.use(
   })
 );
 
+const HOST = '192.168.1.14';
 
-app.listen(port, () => {
+app.listen(port, HOST, () => {
   const networkInterfaces = os.networkInterfaces();
   const ip = Object.values(networkInterfaces)
     .flat()
     .find((details) => details.family === 'IPv4' && !details.internal)?.address;
 
-  console.log(`Server is running on: http://${ip || 'localhost'}:${port}${api_url}`);
+  console.log(`Server is running on: http://${HOST || 'localhost'}:${port}${api_url}`);
 });
 // mongodb+srv://admin:admin123@cluster0.h40dz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 //Connect to mongo db
