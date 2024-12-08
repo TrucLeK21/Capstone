@@ -45,8 +45,6 @@ class _HomePageState extends State<HomePage> {
               ? DateTime.tryParse(dateRecord['value'])
               : null;
         }
-        print(latestDate);
-        print(latestRecord);
       } else {
         print('Không thể tải thông tin người dùng');
       }
@@ -78,25 +76,22 @@ class _HomePageState extends State<HomePage> {
       children: [
         // Nội dung chính
         Container(
-          padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
-          decoration: const BoxDecoration(
-            color: AppColors.superLightGray,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                if (latestRecord != null)
-                  ...latestRecord!.map((record) {
-                    if (record['key'] != 'date' && record['key'] != '_id') {
-                      return _infoCard(record['name'], record['value'],
-                          record['unit'] ?? '', latestDate);
-                    }
-                    return SizedBox();
-                  }).toList()
-              ],
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
+            decoration: const BoxDecoration(
+              color: AppColors.superLightGray,
             ),
-          ),
-        ),
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+              itemCount: latestRecord?.length ?? 0,
+              itemBuilder: (context, index) {
+                final record = latestRecord![index];
+                if (record['key'] != 'date' && record['key'] != '_id') {
+                  return _infoCard(record['name'], record['value'],
+                      record['unit'] ?? '', latestDate);
+                }
+                return const SizedBox();
+              },
+            )),
         // Nút nổi
         Positioned(
           bottom: 20, // Khoảng cách từ cạnh dưới
@@ -154,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                       size: 32,
                     ),
                     const SizedBox(width: 5),
-                    Container(
+                    SizedBox(
                       width: 130,
                       child: Text(
                         key,

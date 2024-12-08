@@ -98,200 +98,202 @@ class _EditProfilePageState extends State<EditProfilePage> {
       padding: const EdgeInsets.all(16.0),
       width: double.infinity,
       height: double.infinity,
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-
-            // Họ và tên
-            TextFormField(
-              controller: _fullnameController,
-              decoration: const InputDecoration(
-                labelText: 'Họ và tên',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập họ và tên';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Giới tính
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'Giới tính',
-                border: OutlineInputBorder(),
-              ),
-              value: _selectedGender,
-              items: _genderOptions
-                  .map((gender) => DropdownMenuItem(
-                        value: gender,
-                        child: Text(gender),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedGender = value;
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng chọn giới tính';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Ngày sinh
-            GestureDetector(
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime.now(),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    _selectedDate = pickedDate;
-                  });
-                }
-              },
-              child: InputDecorator(
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+        
+              // Họ và tên
+              TextFormField(
+                controller: _fullnameController,
                 decoration: const InputDecoration(
-                  labelText: 'Ngày sinh',
+                  labelText: 'Họ và tên',
                   border: OutlineInputBorder(),
                 ),
-                child: Text(
-                  _selectedDate != null
-                      ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
-                      : 'Chọn ngày sinh',
-                  style: TextStyle(
-                    color: _selectedDate != null ? Colors.black : Colors.grey,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập họ và tên';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+        
+              // Giới tính
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Giới tính',
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedGender,
+                items: _genderOptions
+                    .map((gender) => DropdownMenuItem(
+                          value: gender,
+                          child: Text(gender),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedGender = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng chọn giới tính';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+        
+              // Ngày sinh
+              GestureDetector(
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1900),
+                    lastDate: DateTime.now(),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      _selectedDate = pickedDate;
+                    });
+                  }
+                },
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    labelText: 'Ngày sinh',
+                    border: OutlineInputBorder(),
+                  ),
+                  child: Text(
+                    _selectedDate != null
+                        ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                        : 'Chọn ngày sinh',
+                    style: TextStyle(
+                      color: _selectedDate != null ? Colors.black : Colors.grey,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Chiều cao
-            TextFormField(
-              controller: _heightController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Chiều cao (cm)',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập chiều cao';
-                }
-                if (value.isNotEmpty && double.tryParse(value) == null) {
-                  return 'Vui lòng nhập số hợp lệ';
-                }
-
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Cân nặng
-            TextFormField(
-              controller: _weightController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Cân nặng (kg)',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập cân nặng';
-                }
-                if (value.isNotEmpty && double.tryParse(value) == null) {
-                  return 'Vui lòng nhập số hợp lệ';
-                }
-
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Mức độ hoạt động
-            DropdownButtonFormField<double>(
-              decoration: const InputDecoration(
-                labelText: 'Mức độ hoạt động',
-                border: OutlineInputBorder(),
-              ),
-              value: _selectedActivityFactor,
-              items: _activityFactorOptions.map((factor) {
-                // Lấy key và value từ map
-                String activityLevel = factor.keys.first; // Key
-                double factorValue = factor.values.first; // Value
-
-                return DropdownMenuItem<double>(
-                  value: factorValue, // Set giá trị value là kiểu double
-                  child: Text(activityLevel), // Hiển thị key (mức độ hoạt động)
-                );
-              }).toList(),
-              onChanged: (double? value) {
-                setState(() {
-                  _selectedActivityFactor = value; // Cập nhật giá trị
-                });
-              },
-              validator: (value) {
-                if (value == null) {
-                  return 'Vui lòng chọn mức độ hoạt động';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            // Nút lưu
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                fixedSize: const Size(150, 50),
-              ),
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  var data = {
-                    "fullName": _fullnameController.text,
-                    "dateOfBirth": _selectedDate?.toIso8601String(),
-                    "gender": _selectedGender,
-                    "height": _heightController.text,
-                    "weight": _weightController.text,
-                    "activityFactor": _selectedActivityFactor,
-                  };
-                  var res = await userServices().update(data);
-                  if (res == true) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Thông tin đã được lưu thành công'),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Thông tin đã được lưu thất bại'),
-                      ),
-                    );
+              const SizedBox(height: 16),
+        
+              // Chiều cao
+              TextFormField(
+                controller: _heightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Chiều cao (cm)',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập chiều cao';
                   }
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/home', (route) => false);
-                  // Xử lý lưu dữ liệu tại đây
-                }
-              },
-              child: const Text('Lưu'),
-            ),
-          ],
+                  if (value.isNotEmpty && double.tryParse(value) == null) {
+                    return 'Vui lòng nhập số hợp lệ';
+                  }
+        
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+        
+              // Cân nặng
+              TextFormField(
+                controller: _weightController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Cân nặng (kg)',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Vui lòng nhập cân nặng';
+                  }
+                  if (value.isNotEmpty && double.tryParse(value) == null) {
+                    return 'Vui lòng nhập số hợp lệ';
+                  }
+        
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+        
+              // Mức độ hoạt động
+              DropdownButtonFormField<double>(
+                decoration: const InputDecoration(
+                  labelText: 'Mức độ hoạt động',
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedActivityFactor,
+                items: _activityFactorOptions.map((factor) {
+                  // Lấy key và value từ map
+                  String activityLevel = factor.keys.first; // Key
+                  double factorValue = factor.values.first; // Value
+        
+                  return DropdownMenuItem<double>(
+                    value: factorValue, // Set giá trị value là kiểu double
+                    child: Text(activityLevel), // Hiển thị key (mức độ hoạt động)
+                  );
+                }).toList(),
+                onChanged: (double? value) {
+                  setState(() {
+                    _selectedActivityFactor = value; // Cập nhật giá trị
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Vui lòng chọn mức độ hoạt động';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              // Nút lưu
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size(150, 50),
+                ),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    var data = {
+                      "fullName": _fullnameController.text,
+                      "dateOfBirth": _selectedDate?.toIso8601String(),
+                      "gender": _selectedGender,
+                      "height": _heightController.text,
+                      "weight": _weightController.text,
+                      "activityFactor": _selectedActivityFactor,
+                    };
+                    var res = await userServices().update(data);
+                    if (res == true) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thông tin đã được lưu thành công'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thông tin đã được lưu thất bại'),
+                        ),
+                      );
+                    }
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/home', (route) => false);
+                    // Xử lý lưu dữ liệu tại đây
+                  }
+                },
+                child: const Text('Lưu'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -16,7 +16,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final int index = 2;
   User? user;
-  Metrics? lastestRecord;
+  Metrics? latestRecord;
 
   void initState() {
     super.initState();
@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
         print(profile);
         setState(() {
           user = profile;
-          lastestRecord = user?.getLatestRecord();
+          latestRecord = user?.getLatestRecord();
         });
       } else {
         print('Không thể tải thông tin người dùng');
@@ -58,95 +58,82 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildUI() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-      decoration: const BoxDecoration(
-        color: AppColors.superLightGray,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Image.asset(
-          //   'assets/img/user-icon.png',
-          //   width: 150,
-          //   height: 150,
-          // ),
-          Text(
-            user?.fullName ?? "Tên người dùng",
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+    return SafeArea(
+      // child: SingleChildScrollView( // Đảm bảo cuộn được khi không đủ không gian
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+          decoration: const BoxDecoration(
+            color: AppColors.superLightGray,
           ),
-          // const SizedBox(
-          //   height: 50,
-          // ),
-          Container(
-            color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildProfileField("Tên", user?.fullName ?? "Họ và tên"),
-                _buildProfileField("Giới tính", user?.gender ?? "other"),
-                _buildProfileField(
-                    "Ngày sinh",
-                    user?.dateOfBirth != null
-                        ? "${user!.dateOfBirth!.day.toString().padLeft(2, '0')}/${user!.dateOfBirth!.month.toString().padLeft(2, '0')}/${user!.dateOfBirth!.year}"
-                        : ""),
-                _buildProfileField(
-                    "Chiều cao (cm)", lastestRecord?.height?.toString() ?? ""),
-                _buildProfileField(
-                    "Cân nặng (kg)", lastestRecord?.weight?.toString() ?? ""),
-                const SizedBox(
-                  height: 30,
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(250, 50),
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(
-                      color: Colors.black,
-                      width: 2,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/edit-profile');
-                  },
-                  child: const Text(
-                    "Chỉnh sửa",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              fixedSize: const Size(250, 50),
-              backgroundColor: Color(0xffdc3545),
-            ),
-            onPressed: () {
-              AuthServices().logout();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-            child: const Text(
-              "Đăng xuất",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Căn chỉnh lại cho hợp lý
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
                 color: Colors.white,
+                child: Column(
+                  children: [
+                    _buildProfileField("Tên", user?.fullName ?? "Họ và tên"),
+                    _buildProfileField("Giới tính", user?.gender == 'male' ? "Nam" : "Nữ"),
+                    _buildProfileField(
+                        "Ngày sinh",
+                        user?.dateOfBirth != null
+                            ? "${user!.dateOfBirth!.day.toString().padLeft(2, '0')}/${user!.dateOfBirth!.month.toString().padLeft(2, '0')}/${user!.dateOfBirth!.year}"
+                            : ""),
+                    _buildProfileField(
+                        "Chiều cao (cm)", latestRecord?.height?.toString() ?? ""),
+                    _buildProfileField(
+                        "Cân nặng (kg)", latestRecord?.weight?.toString() ?? ""),
+                    _buildProfileField("Mức độ hoạt động", user?.activityFactor?.toString() ?? ""),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(250, 50),
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/edit-profile');
+                      },
+                      child: const Text(
+                        "Chỉnh sửa",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                  ],
+                ),
               ),
-            ),
+
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size(250, 50),
+                  backgroundColor: Color(0xffdc3545),
+                ),
+                onPressed: () {
+                  AuthServices().logout();
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+                child: const Text(
+                  "Đăng xuất",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      // ),
     );
   }
 
