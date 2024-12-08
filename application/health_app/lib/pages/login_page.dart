@@ -109,9 +109,14 @@ class _LoginPageState extends State<LoginPage> {
                     };
 
                     var res = await AuthServices().login(data);
-                    if (res == true) {
+                    if (res?.statusCode == 200) {
                       Navigator.pushReplacementNamed(context, "/home");
-                    } else {
+                    }
+                    else if(res?.statusCode == 202)
+                    {
+                      Navigator.pushReplacementNamed(context, "/edit-profile");
+                    }
+                    else {
                       String message = "Incorect username or password";
 
                       ScaffoldMessenger.of(context).showSnackBar(

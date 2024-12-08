@@ -22,7 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? _selectedGender;
   DateTime? _selectedDate;
   double? _selectedActivityFactor;
-  final List<String> _genderOptions = ['male', 'female', 'other'];
+  final List<String> _genderOptions = ['male', 'female'];
   final List<Map<String, double>> _activityFactorOptions = [
     {"Ít hoạt động": 1.2},
     {"Vận động nhẹ": 1.375},
@@ -267,7 +267,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     "dateOfBirth": _selectedDate?.toIso8601String(),
                     "gender": _selectedGender,
                     "height": _heightController.text,
-                    "weight": _weightController.text
+                    "weight": _weightController.text,
+                    "activityFactor": _selectedActivityFactor,
                   };
                   var res = await userServices().update(data);
                   if (res == true) {

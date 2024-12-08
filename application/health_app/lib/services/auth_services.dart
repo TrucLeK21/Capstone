@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:health_app/services/http_services.dart';
 import 'package:health_app/services/user_session.dart';
 import 'package:http/http.dart' as http;
@@ -12,18 +14,18 @@ class AuthServices {
     return res!;
   }
 
-  Future<bool> login(Map<String, dynamic> data) async {
+  Future<http.Response?> login(Map<String, dynamic> data) async {
     print(data);
     final res = await _httpServices.post('/auth/login', data: data);
 
-    if (res?.statusCode == 200) {
+    if (res?.statusCode == 200 || res?.statusCode == 202) {
       // Kiểm tra và cập nhật session với token
       data = jsonDecode(res!.body);
       print(data);
       UserSession().updateSession(token: data['token']);
-      return true;
+      return res;
     } else {
-      return false; // Trả về false nếu có lỗi
+      return null; // Trả về false nếu có lỗi
     }
   }
 

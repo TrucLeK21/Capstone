@@ -161,8 +161,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       var res = await AuthServices().register(data);
 
                       if (res.statusCode == 200) {
-                        bool loginRes = await AuthServices().login(data);
-                        if(loginRes)
+                        final loginRes = await AuthServices().login(data);
+                        if(loginRes?.statusCode == 202)
                         {
                           Navigator.pushNamedAndRemoveUntil(context, '/edit-profile', (route) => false);
 

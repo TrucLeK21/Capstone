@@ -10,4 +10,4 @@ class AppColors {
   static const appGreen = Color(0xFF4CAF50);
 }
 
-const String API_URL = "http://192.168.1.6:5000/api";
+const String API_URL = "http://192.168.137.1:5000/api";
