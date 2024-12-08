@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:health_app/consts.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -37,13 +37,13 @@ class _DetailPageState extends State<DetailPage> {
         final metric = arguments['metric'];
         print('Metric: $metric');
         final res = await userServices().getMetricRecords(metric);
-        if (res != null) {
+        if (res != null && res.isNotEmpty) {
+          setState(() {
           records = res;
           _metricUnit = res[0]['unit'] ?? "";
           _selectedRecord = res.last['value'].toString();
-          print(res.last['date'].runtimeType);
           _selectedRecordDate = DateTime.parse(res.last['date']);
-          print(records);
+        });
         } else {
           print("Cannot load metrics");
         }
@@ -58,13 +58,19 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+    if(records.isEmpty) {
+      return const Center(
+        child:
+            CircularProgressIndicator(), // Hiển thị vòng xoay khi chưa có dữ liệu
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Column(children: [
           Text("Chi tiết"),
           Text(
-            _selectedRecordDate?.toIso8601String() ?? "",
+            "Lúc ${_selectedRecordDate?.hour.toString().padLeft(2, '0')}:${_selectedRecordDate?.minute.toString().padLeft(2, '0')} - ${_selectedRecordDate?.day.toString().padLeft(2, '0')}/${_selectedRecordDate?.month.toString().padLeft(2, '0')}/${_selectedRecordDate?.year.toString()}",
             style: TextStyle(
               fontSize: 18,
               color: Colors.black,
@@ -90,6 +96,23 @@ class _DetailPageState extends State<DetailPage> {
       total += record['value'];
     }
     double average = total / records.length;
+
+    double minValue = records
+        .map((record) => record['value'].toDouble())
+        .reduce((a, b) => a < b ? a : b);
+    double maxValue = records
+        .map((record) => record['value'].toDouble())
+        .reduce((a, b) => a > b ? a : b);
+    double minToAverage = (minValue + average) / 2;
+    double maxToAverage = (maxValue + average) / 2;
+
+    List<double> importantMarks = [
+      minValue,
+      minToAverage,
+      average,
+      maxToAverage,
+      maxValue
+    ];
     // lấy các điểm
 
     List<FlSpot> spots = [];
@@ -164,48 +187,66 @@ class _DetailPageState extends State<DetailPage> {
             padding: const EdgeInsets.all(20),
             child: LineChart(
               LineChartData(
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            return Container(
-                              margin: const EdgeInsets.fromLTRB(0, 0, 10, 10),
-                              child: Text("${average.toStringAsFixed(2)}"),
-                            );
-                          }),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: false,
-                      ),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: false,
-                      ),
-                    ),
-                    bottomTitles:const AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: false,
-                      ),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        //Kiểm tra xem 'value' có nằm gần một trong các cột mốc không
+                        if (importantMarks
+                            .any((mark) => (value - mark).abs() < 0.25)) {
+                          return Container(
+                            margin: const EdgeInsets.only(right: 5),
+                            child: Text(
+                              value.toStringAsFixed(
+                                  1), // Hiển thị 1 chữ số thập phân
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        }
+                        return Container();
+                      },
+                      interval: null,
                     ),
                   ),
-                  borderData: FlBorderData(
-                    show: false,
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: false,
+                    ),
                   ),
-                  gridData: const FlGridData(
-                    show: false,
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: false,
+                    ),
                   ),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      color: AppColors.appGreen,
-                      belowBarData: BarAreaData(show: false),
-                    )
-                  ]),
+                  bottomTitles: const AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: false,
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: false,
+                ),
+                gridData: const FlGridData(
+                  show: false,
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    color: AppColors.appGreen,
+                    belowBarData: BarAreaData(show: false),
+                  )
+                ],
+                minY: minValue,
+                maxY: maxValue,
+              ),
+              
             ),
           ),
         ],
