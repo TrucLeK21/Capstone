@@ -187,9 +187,10 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      "Tiêu chuẩn",
+                      "Giá trị",
                       style: TextStyle(
                         color: AppColors.appGreen,
                         fontSize: 20,
