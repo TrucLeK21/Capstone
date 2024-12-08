@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:health_app/consts.dart';
 import 'package:health_app/pages/ble_page.dart';
 import 'package:health_app/pages/detail_page.dart';
@@ -10,6 +11,9 @@ import 'package:health_app/pages/profile_page.dart';
 import 'package:health_app/pages/register_page.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Khóa hướng màn hình
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
 

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:health_app/services/http_services.dart';
 import 'package:health_app/services/user_session.dart';
 import 'package:http/http.dart' as http;
