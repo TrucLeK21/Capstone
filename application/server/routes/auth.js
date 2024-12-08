@@ -47,7 +47,15 @@ router.post(`/register`, async (req, res) => {
         }
         const token = generateToken(user.id);
         console.log(token);
-        res.status(200).json({ message: 'success', token: token});
+
+        if(user.fullName != null && user.dateOfBirth != null && user.gender != null && user.activityFactor != null && user.records.length > 0)
+        {
+            res.status(200).json({ message: 'success', token: token});
+        }
+        else 
+        {
+            res.status(202).json({ message: 'success but missing metrics', token: token});
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
