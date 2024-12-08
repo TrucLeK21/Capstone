@@ -53,4 +53,21 @@ class userServices {
       return null;
     }
   }
+
+  Future<List<dynamic>?> getMetricRecords(String metric) async {
+    String? token = UserSession().token;
+    Map<String, String> header = {};
+    if (token != null) {
+      header['Authorization'] = 'Bearer $token';
+    }
+    final res = await HttpServices().get('/users/records/$metric', headers: header);
+    if (res!.statusCode == 200) 
+    {
+        return jsonDecode(res.body);
+    }
+    else 
+    {
+      return null;
+    }
+  }
 }

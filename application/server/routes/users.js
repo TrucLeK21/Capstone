@@ -1,7 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
 import protect from "../middleware/middleware.js";
-import { Schema } from "mongoose";
 
 const router = express.Router();
 
@@ -108,3 +107,34 @@ router.get(`/latestRecord`, protect, async (req, res) => {
 }});
 
 export default router;
+
+// get record of 1 specific metric 
+router.get(`/records/:metric`, protect, async (req, res) => {
+  try {
+    const {metric} = req.params;
+
+    let user = await User.findOne({ id: req.user.id });
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    const allowedMetrics = ['height', 'weight', 'bmi', 'bmr', 'tdee', 'lbm', 'fatPercentage', 'waterPercentage', 'boneMass', 'muscleMass', 'proteinPercentage', 'visceralFat', 'idealWeight'];
+    if (!allowedMetrics.includes(metric)) {
+      return res.status(400).json({ message: `Metric "${metric}" không hợp lệ. Vui lòng chọn từ danh sách: ${allowedMetrics.join(', ')}` });
+    }
+
+    const records = user.records.map(record => ({
+      key: metric,
+      date: record.date,
+      value: record[metric],
+      unit: unitMap[metric] || null,
+    }));
+
+    // Sắp xếp records theo từ cũ nhất đến mới nhất (theo trường date)
+    records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return res.status(200).json(records);
+
+  } catch (error) {
+    res.status(500).json(e.message);
+  }
+});

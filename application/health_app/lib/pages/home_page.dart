@@ -85,8 +85,8 @@ class _HomePageState extends State<HomePage> {
               itemCount: latestRecord?.length ?? 0,
               itemBuilder: (context, index) {
                 final record = latestRecord![index];
-                if (record['key'] != 'date' && record['key'] != '_id') {
-                  return _infoCard(record['name'], record['value'],
+                if (record['key'] != 'date' && record['key'] != '_id' && record['key'] != 'age') {
+                  return _infoCard(record['key'] ,record['name'], record['value'],
                       record['unit'] ?? '', latestDate);
                 }
                 return const SizedBox();
@@ -113,10 +113,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _infoCard(String key, dynamic value, String? unit, DateTime? date) {
+  Widget _infoCard(String key, String name, dynamic value, String? unit, DateTime? date) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, '/detail');
+        Navigator.pushNamed(
+          context,
+          '/detail',
+          arguments: {
+            "metric": key,
+          },
+        );
       },
       child: Container(
         width: double.infinity,
@@ -152,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 130,
                       child: Text(
-                        key,
+                        name,
                         style: const TextStyle(
                           color: AppColors.mainColor,
                           fontWeight: FontWeight.bold,
@@ -210,7 +216,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Text(
                           unit ?? "",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             color: AppColors.mediumGray,
                           ),

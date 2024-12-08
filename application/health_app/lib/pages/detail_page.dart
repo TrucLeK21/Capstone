@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:health_app/consts.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:health_app/services/user_services.dart';
 import 'package:health_app/widgets/custom_footer.dart';
 
 class DetailPage extends StatefulWidget {
@@ -9,19 +11,60 @@ class DetailPage extends StatefulWidget {
   @override
   State<DetailPage> createState() => _DetailPageState();
 }
+
 // test
 class _DetailPageState extends State<DetailPage> {
   final int index = 0;
+  List<dynamic> records = [];
+  DateTime? _selectedRecordDate;
+  String _selectedRecord = "";
+  String _metricUnit = "";
+
+  @override
+  void initState() {
+    super.initState();
+    // Gọi hàm lấy thông tin người dùng khi trang được tải
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMetricRecords();
+    });
+  }
+
+  void _loadMetricRecords() async {
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      final arguments = modalRoute.settings.arguments as Map?;
+      if (arguments != null) {
+        final metric = arguments['metric'];
+        print('Metric: $metric');
+        final res = await userServices().getMetricRecords(metric);
+        if (res != null) {
+          records = res;
+          _metricUnit = res[0]['unit'] ?? "";
+          _selectedRecord = res.last['value'].toString();
+          print(res.last['date'].runtimeType);
+          _selectedRecordDate = DateTime.parse(res.last['date']);
+          print(records);
+        } else {
+          print("Cannot load metrics");
+        }
+      } else {
+        print('No arguments found');
+      }
+    } else {
+      print('No ModalRoute found');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Column(children: [
+        title: Column(children: [
           Text("Chi tiết"),
           Text(
-            "Lúc 15:30 29 tháng 10",
+            _selectedRecordDate?.toIso8601String() ?? "",
             style: TextStyle(
               fontSize: 18,
               color: Colors.black,
@@ -39,6 +82,22 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Widget _buildUI() {
+    // tính toán các thông số cần dùng
+
+    // tính giá tri trung bình
+    double total = 0;
+    for (var record in records) {
+      total += record['value'];
+    }
+    double average = total / records.length;
+    // lấy các điểm
+
+    List<FlSpot> spots = [];
+    for (int i = 0; i < records.length; i++) {
+      print(records[i]['value'].runtimeType);
+      spots.add(FlSpot(i.toDouble(), records[i]['value'].toDouble()));
+    }
+
     return Container(
       child: Column(
         children: [
@@ -47,7 +106,7 @@ class _DetailPageState extends State<DetailPage> {
             width: double.infinity,
             height: 200,
             color: Colors.white,
-            child: const Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
@@ -58,7 +117,7 @@ class _DetailPageState extends State<DetailPage> {
                       baseline: 64,
                       baselineType: TextBaseline.alphabetic,
                       child: Text(
-                        "62.3",
+                        _selectedRecord,
                         style: TextStyle(
                           fontSize: 64,
                           fontWeight: FontWeight.w500,
@@ -72,7 +131,7 @@ class _DetailPageState extends State<DetailPage> {
                       baseline: 48,
                       baselineType: TextBaseline.alphabetic,
                       child: Text(
-                        "kg",
+                        _metricUnit,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w400,
@@ -113,7 +172,7 @@ class _DetailPageState extends State<DetailPage> {
                           getTitlesWidget: (value, meta) {
                             return Container(
                               margin: const EdgeInsets.fromLTRB(0, 0, 10, 10),
-                              child: Text("$value"),
+                              child: Text("${average.toStringAsFixed(2)}"),
                             );
                           }),
                     ),
@@ -127,49 +186,9 @@ class _DetailPageState extends State<DetailPage> {
                         showTitles: false,
                       ),
                     ),
-                    bottomTitles: AxisTitles(
+                    bottomTitles:const AxisTitles(
                       sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 30,
-                        interval: 1,
-                        getTitlesWidget: (value, meta) {
-                          switch (value.toInt()) {
-                            case 0:
-                              return Container(
-                                margin: const EdgeInsets.only(top: 15),
-                                child: const Text(
-                                  'January',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              );
-                            case 1:
-                              return Container(
-                                margin: const EdgeInsets.only(top: 15),
-                                child: const Text(
-                                  'February',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              );
-                            case 2:
-                              return Container(
-                                margin: const EdgeInsets.only(top: 15),
-                                child: const Text(
-                                  'March',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              );
-                            case 3:
-                              return Container(
-                                margin: const EdgeInsets.only(top: 15),
-                                child: const Text(
-                                  'April',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              );
-                            default:
-                              return const Text('');
-                          }
-                        },
+                        showTitles: false,
                       ),
                     ),
                   ),
@@ -180,12 +199,12 @@ class _DetailPageState extends State<DetailPage> {
                     show: false,
                   ),
                   lineBarsData: [
-                    LineChartBarData(spots: [
-                      const FlSpot(0, 60),
-                      const FlSpot(1, 62),
-                      const FlSpot(2, 63),
-                      const FlSpot(3, 62.3),
-                    ])
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      color: AppColors.appGreen,
+                      belowBarData: BarAreaData(show: false),
+                    )
                   ]),
             ),
           ),
