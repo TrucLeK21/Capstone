@@ -113,6 +113,11 @@ class _DetailPageState extends State<DetailPage> {
       maxToAverage,
       maxValue
     ];
+    List<Color> gradientColors = [
+      Colors.green.withOpacity(0.5),
+      Colors.blue.withOpacity(0.5)
+    ];
+
     // lấy các điểm
 
     List<FlSpot> spots = [];
@@ -240,9 +245,33 @@ class _DetailPageState extends State<DetailPage> {
                     spots: spots,
                     isCurved: true,
                     color: AppColors.appGreen,
-                    belowBarData: BarAreaData(show: false),
-                  )
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [gradientColors[0], gradientColors[1]],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
                 ],
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (touchedSpot) => Colors.blueAccent,
+                  ),
+                  touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                    if (!event.isInterestedForInteractions ||
+                        touchResponse == null ||
+                        touchResponse.lineBarSpots == null) {
+                      return;
+                    }
+                    final touchedSpot = touchResponse.lineBarSpots!.first;
+                    setState(() {
+                      _selectedRecord = touchedSpot.y.toString();
+                      _selectedRecordDate = DateTime.parse(records[touchedSpot.x.toInt()]['date']);
+                    });
+                  },
+                ),
                 minY: minValue,
                 maxY: maxValue,
               ),

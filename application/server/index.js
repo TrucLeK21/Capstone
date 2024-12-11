@@ -28,7 +28,7 @@ const getLocalExternalIP = () => {
   return ipAddress || '0.0.0.0'; // Trả về '0.0.0.0' nếu không tìm thấy IP nào
 };
 
-const HOST = getLocalExternalIP();;
+const HOST = "truc-laptop";
 
 app.listen(port, HOST, () => {
   // const networkInterfaces = os.networkInterfaces();
