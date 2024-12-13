@@ -16,7 +16,7 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   final int index = 0;
   List<dynamic> records = [];
-  DateTime? _selectedRecordDate;
+  String? _selectedRecordDate;
   String _selectedRecord = "";
   String _metricUnit = "";
 
@@ -42,7 +42,7 @@ class _DetailPageState extends State<DetailPage> {
           records = res;
           _metricUnit = res[0]['unit'] ?? "";
           _selectedRecord = res.last['value'].toString();
-          _selectedRecordDate = DateTime.parse(res.last['date']);
+          _selectedRecordDate = DateTime.parse(res.last['date']).toIso8601String();
         });
         } else {
           print("Cannot load metrics");
@@ -70,7 +70,8 @@ class _DetailPageState extends State<DetailPage> {
         title: Column(children: [
           Text("Chi tiết"),
           Text(
-            "Lúc ${_selectedRecordDate?.hour.toString().padLeft(2, '0')}:${_selectedRecordDate?.minute.toString().padLeft(2, '0')} - ${_selectedRecordDate?.day.toString().padLeft(2, '0')}/${_selectedRecordDate?.month.toString().padLeft(2, '0')}/${_selectedRecordDate?.year.toString()}",
+            // "Lúc ${_selectedRecordDate?.hour.toString().padLeft(2, '0')}:${_selectedRecordDate?.minute.toString().padLeft(2, '0')} - ${_selectedRecordDate?.day.toString().padLeft(2, '0')}/${_selectedRecordDate?.month.toString().padLeft(2, '0')}/${_selectedRecordDate?.year.toString()}",
+            "Lúc ${_selectedRecordDate}",
             style: TextStyle(
               fontSize: 18,
               color: Colors.black,
@@ -268,7 +269,7 @@ class _DetailPageState extends State<DetailPage> {
                     final touchedSpot = touchResponse.lineBarSpots!.first;
                     setState(() {
                       _selectedRecord = touchedSpot.y.toString();
-                      _selectedRecordDate = DateTime.parse(records[touchedSpot.x.toInt()]['date']);
+                      _selectedRecordDate = DateTime.parse(records[touchedSpot.x.toInt()]['date']).toIso8601String();
                     });
                   },
                 ),

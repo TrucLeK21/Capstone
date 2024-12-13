@@ -22,7 +22,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String? _selectedGender;
   DateTime? _selectedDate;
   double? _selectedActivityFactor;
-  final List<String> _genderOptions = ['male', 'female'];
+  final List<String> _genderOptions = ['Nam', 'Nữ'];
   final List<Map<String, double>> _activityFactorOptions = [
     {"Ít hoạt động": 1.2},
     {"Vận động nhẹ": 1.375},
@@ -52,9 +52,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _fullnameController.text = user!.fullName ?? ''; // Gán giá trị
           _heightController.text = lastestRecord?.height.toString() ?? '';
           _weightController.text = lastestRecord?.weight.toString() ?? '';
-          _selectedGender = user?.gender;
+          _selectedGender = user?.gender == "" ? "male" : user?.gender;
           _selectedDate = user?.dateOfBirth;
-          // _selectedActivityFactor =user?.activityFactor;
+          _selectedActivityFactor = user?.activityFactor;
+          print(_selectedGender);
         });
       } else {
         print('Không thể tải thông tin người dùng');
@@ -129,7 +130,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   labelText: 'Giới tính',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedGender,
+                value: _selectedGender == "male" ? "Nam" : "Nữ" ,
                 items: _genderOptions
                     .map((gender) => DropdownMenuItem(
                           value: gender,
@@ -138,7 +139,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _selectedGender = value;
+                    _selectedGender = value == "Nam" ? "male" : "female";
                   });
                 },
                 validator: (value) {

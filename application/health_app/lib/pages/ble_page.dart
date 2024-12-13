@@ -187,13 +187,13 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
       {"name": "BMR", "value": data['bmr'], "unit": "kcal/day"},
       {"name": "TDEE", "value": data['tdee'], "unit": "kcal/day"},
       {"name": "LBM", "value": data['lbm'], "unit": "kg"},
-      {"name": "Fat %", "value": data['fat_percentage'], "unit": "%"},
-      {"name": "Water %", "value": data['water_percentage'], "unit": "%"},
-      {"name": "Bone Mass", "value": data['bone_mass'], "unit": "kg"},
-      {"name": "Muscle Mass", "value": data['muscle_mass'], "unit": "kg"},
-      {"name": "Protein %", "value": data['protein_percentage'], "unit": "%"},
-      {"name": "Visceral Fat", "value": data['visceral_fat'], "unit": "kg"},
-      {"name": "Ideal Weight", "value": data['ideal_weight'], "unit": "kg"}
+      {"name": "Fat %", "value": data['fatPercentage'], "unit": "%"},
+      {"name": "Water %", "value": data['waterPercentage'], "unit": "%"},
+      {"name": "Bone Mass", "value": data['boneMass'], "unit": "kg"},
+      {"name": "Muscle Mass", "value": data['muscleMass'], "unit": "kg"},
+      {"name": "Protein %", "value": data['proteinPercentage'], "unit": "%"},
+      {"name": "Visceral Fat", "value": data['visceralFat'], "unit": "kg"},
+      {"name": "Ideal Weight", "value": data['idealWeight'], "unit": "kg"}
     ];
   }
 

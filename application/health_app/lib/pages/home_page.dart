@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
           child: FloatingActionButton(
             onPressed: () {
               // Hành động khi nhấn nút
-              Navigator.pushReplacementNamed(context, "/ble-screen");
+              Navigator.pushNamed(context, "/ble-screen");
             },
             backgroundColor: AppColors.mainColor, // Màu nền nút
             foregroundColor: Colors.white, // Màu biểu tượng
@@ -144,50 +144,52 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.accessibility,
-                      color: AppColors.mainColor,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 5),
-                    SizedBox(
-                      width: 130,
-                      child: Text(
-                        name,
-                        style: const TextStyle(
-                          color: AppColors.mainColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
+            FittedBox(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.accessibility,
+                        color: AppColors.mainColor,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 5),
+                      SizedBox(
+                        width: 130,
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                            color: AppColors.mainColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                          softWrap: true,
                         ),
-                        softWrap: true,
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      latestDate != null
-                          ? "${latestDate!.day.toString().padLeft(2, '0')}/${latestDate!.month.toString().padLeft(2, '0')}/${latestDate!.year}"
-                          : "",
-                      style: const TextStyle(
-                        color: AppColors.boldGray,
-                        fontSize: 20,
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        latestDate != null
+                            ? "${latestDate!.day.toString().padLeft(2, '0')}/${latestDate!.month.toString().padLeft(2, '0')}/${latestDate!.year}"
+                            : "",
+                        style: const TextStyle(
+                          color: AppColors.boldGray,
+                          fontSize: 20,
+                        ),
                       ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 20,
-                      color: Colors.grey,
-                    ),
-                  ],
-                ),
-              ],
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

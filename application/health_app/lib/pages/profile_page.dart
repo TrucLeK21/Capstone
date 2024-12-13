@@ -60,13 +60,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildUI() {
     return SafeArea(
       // child: SingleChildScrollView( // Đảm bảo cuộn được khi không đủ không gian
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-          decoration: const BoxDecoration(
-            color: AppColors.superLightGray,
-          ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+        decoration: const BoxDecoration(
+          color: AppColors.superLightGray,
+        ),
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Căn chỉnh lại cho hợp lý
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween, // Căn chỉnh lại cho hợp lý
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
@@ -74,17 +76,19 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   children: [
                     _buildProfileField("Tên", user?.fullName ?? "Họ và tên"),
-                    _buildProfileField("Giới tính", user?.gender == 'male' ? "Nam" : "Nữ"),
+                    _buildProfileField(
+                        "Giới tính", user?.gender == 'male' ? "Nam" : "Nữ"),
                     _buildProfileField(
                         "Ngày sinh",
                         user?.dateOfBirth != null
                             ? "${user!.dateOfBirth!.day.toString().padLeft(2, '0')}/${user!.dateOfBirth!.month.toString().padLeft(2, '0')}/${user!.dateOfBirth!.year}"
                             : ""),
-                    _buildProfileField(
-                        "Chiều cao (cm)", latestRecord?.height?.toString() ?? ""),
-                    _buildProfileField(
-                        "Cân nặng (kg)", latestRecord?.weight?.toString() ?? ""),
-                    _buildProfileField("Mức độ hoạt động", user?.activityFactor?.toString() ?? ""),
+                    _buildProfileField("Chiều cao (cm)",
+                        latestRecord?.height?.toString() ?? ""),
+                    _buildProfileField("Cân nặng (kg)",
+                        latestRecord?.weight?.toString() ?? ""),
+                    _buildProfileField("Mức độ hoạt động",
+                        user?.activityFactor?.toString() ?? ""),
                     const SizedBox(height: 30),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -107,32 +111,32 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(250, 50),
+                        backgroundColor: Color(0xffdc3545),
+                      ),
+                      onPressed: () {
+                        AuthServices().logout();
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      child: const Text(
+                        "Đăng xuất",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ],
-                ),
-              ),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(250, 50),
-                  backgroundColor: Color(0xffdc3545),
-                ),
-                onPressed: () {
-                  AuthServices().logout();
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-                child: const Text(
-                  "Đăng xuất",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
                 ),
               ),
             ],
           ),
         ),
+      ),
       // ),
     );
   }

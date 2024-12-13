@@ -12,7 +12,7 @@ const generateToken = (userId) => {
 
 
 router.post(`/register`, async (req, res) => {
-    console.log("Result", req.body);
+
     const {username, password} = req.body;
   
     try {
@@ -22,10 +22,12 @@ router.post(`/register`, async (req, res) => {
             return res.status(400).json({ message: 'user already exists' });
         }
         user = new User({username, password});
+        console.log(user);
         await user.save();
-
+        console.log(user);
         res.status(200).json({ message: 'success'});
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: error.message });
     }
   });

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import moment from 'moment-timezone';
 const SALT_ROUNDS = 10;
 
 // Schema định nghĩa User
@@ -53,7 +54,7 @@ const userSchema = new mongoose.Schema({
             },
             date: {
                 type: Date,
-                default: Date.now,
+                default: () => new Date(),
             },
             age: {
                 type: Number
@@ -117,6 +118,12 @@ userSchema.pre('save', async function (next) {
         if (user.isNew) {
             const count = await mongoose.model('User').countDocuments(); // Đếm số lượng user trong collection
             user.id = count + 1; // Gán id bằng số lượng user hiện tại + 1
+            let isExisted = await mongoose.model('User').findOne({id : user.id});
+            while(isExisted)
+            {
+                user.id = user.id + 1;
+                isExisted = await mongoose.model('User').findOne({id : user.id});
+            }
         }
         next();
     } catch (error) {
@@ -134,6 +141,10 @@ userSchema.methods.addRecord = function({weight, height, dateOfBirth, gender, ac
     this.gender = gender;
     
     const date = new Date();
+    console.log(date.toString());
+    console.log(date.toLocaleString());
+    const vndate = moment.tz("Asia/Ho_Chi_Minh").toDate();
+    console.log(vndate.to);
     const age = getAge(dateOfBirth);
     const bmi = getBmi(weight, height);
     const bmr = getBmr(weight, height, age, gender);
