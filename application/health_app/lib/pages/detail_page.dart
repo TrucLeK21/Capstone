@@ -4,6 +4,7 @@ import 'package:health_app/consts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:health_app/services/user_services.dart';
 import 'package:health_app/widgets/custom_footer.dart';
+import 'package:intl/intl.dart';
 
 class DetailPage extends StatefulWidget {
   const DetailPage({super.key});
@@ -16,9 +17,10 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   final int index = 0;
   List<dynamic> records = [];
-  String? _selectedRecordDate;
+  DateTime? _selectedRecordDate;
   String _selectedRecord = "";
   String _metricUnit = "";
+  String _formattedDate = "";
 
   @override
   void initState() {
@@ -39,11 +41,13 @@ class _DetailPageState extends State<DetailPage> {
         final res = await userServices().getMetricRecords(metric);
         if (res != null && res.isNotEmpty) {
           setState(() {
-          records = res;
-          _metricUnit = res[0]['unit'] ?? "";
-          _selectedRecord = res.last['value'].toString();
-          _selectedRecordDate = DateTime.parse(res.last['date']).toIso8601String();
-        });
+            records = res;
+            _metricUnit = res[0]['unit'] ?? "";
+            _selectedRecord = res.last['value'].toString();
+            _selectedRecordDate = DateTime.parse(res.last['date']);
+            _formattedDate = DateFormat('hh:mm - dd/MM/yyyy')
+                .format(_selectedRecordDate!.toLocal());
+          });
         } else {
           print("Cannot load metrics");
         }
@@ -58,7 +62,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    if(records.isEmpty) {
+    if (records.isEmpty) {
       return const Center(
         child:
             CircularProgressIndicator(), // Hiển thị vòng xoay khi chưa có dữ liệu
@@ -71,7 +75,7 @@ class _DetailPageState extends State<DetailPage> {
           Text("Chi tiết"),
           Text(
             // "Lúc ${_selectedRecordDate?.hour.toString().padLeft(2, '0')}:${_selectedRecordDate?.minute.toString().padLeft(2, '0')} - ${_selectedRecordDate?.day.toString().padLeft(2, '0')}/${_selectedRecordDate?.month.toString().padLeft(2, '0')}/${_selectedRecordDate?.year.toString()}",
-            "Lúc ${_selectedRecordDate}",
+            "Lúc ${_formattedDate}",
             style: TextStyle(
               fontSize: 18,
               color: Colors.black,
@@ -193,7 +197,28 @@ class _DetailPageState extends State<DetailPage> {
             padding: const EdgeInsets.all(20),
             child: LineChart(
               LineChartData(
+                extraLinesData: ExtraLinesData(horizontalLines: [
+                  HorizontalLine(
+                    y: 1, // Min value
+                    color: Colors.red,
+                    strokeWidth: 2,
+                    dashArray: [5, 5],
+                  ),
+                  HorizontalLine(
+                    y: 5, // Max value
+                    color: Colors.green,
+                    strokeWidth: 2,
+                    dashArray: [5, 5],
+                  ),
+                  HorizontalLine(
+                    y: 3, // Average value
+                    color: Colors.orange,
+                    strokeWidth: 2,
+                    dashArray: [5, 5],
+                  ),
+                ]),
                 titlesData: FlTitlesData(
+                  show:true,
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -206,7 +231,7 @@ class _DetailPageState extends State<DetailPage> {
                             margin: const EdgeInsets.only(right: 5),
                             child: Text(
                               value.toStringAsFixed(
-                                  1), // Hiển thị 1 chữ số thập phân
+                                  0), // Hiển thị 1 chữ số thập phân
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 12,
@@ -244,7 +269,16 @@ class _DetailPageState extends State<DetailPage> {
                 lineBarsData: [
                   LineChartBarData(
                     spots: spots,
-                    isCurved: true,
+                    dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 3,
+                            color: Colors.green,
+                            strokeWidth: 0,
+                            strokeColor: Colors.green.shade300,
+                          );
+                        }),
                     color: AppColors.appGreen,
                     belowBarData: BarAreaData(
                       show: true,
@@ -257,10 +291,8 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                 ],
                 lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (touchedSpot) => Colors.blueAccent,
-                  ),
-                  touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                  touchCallback:
+                      (FlTouchEvent event, LineTouchResponse? touchResponse) {
                     if (!event.isInterestedForInteractions ||
                         touchResponse == null ||
                         touchResponse.lineBarSpots == null) {
@@ -269,14 +301,16 @@ class _DetailPageState extends State<DetailPage> {
                     final touchedSpot = touchResponse.lineBarSpots!.first;
                     setState(() {
                       _selectedRecord = touchedSpot.y.toString();
-                      _selectedRecordDate = DateTime.parse(records[touchedSpot.x.toInt()]['date']).toIso8601String();
+                      _selectedRecordDate = DateTime.parse(
+                          records[touchedSpot.x.toInt()]['date']);
+                      _formattedDate = DateFormat('hh:mm - dd/MM/yyyy')
+                          .format(_selectedRecordDate!.toLocal());
                     });
                   },
                 ),
                 minY: minValue,
                 maxY: maxValue,
               ),
-              
             ),
           ),
         ],
