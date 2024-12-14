@@ -49,3 +49,107 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: SendImageScreen(),
+//     );
+//   }
+// }
+
+// class SendImageScreen extends StatefulWidget {
+//   @override
+//   _SendImageScreenState createState() => _SendImageScreenState();
+// }
+
+// class _SendImageScreenState extends State<SendImageScreen> {
+//   String status = "Sending Image...";
+
+//   // GlobalKey to access the StatusScreen state
+//   final GlobalKey<_StatusScreenState> _statusScreenKey = GlobalKey<_StatusScreenState>();
+
+//   void sendImage() {
+//     // Simulate sending the image (this could be an async task)
+//     setState(() {
+//       status = "Image Sending...";
+//     });
+
+//     // Navigate to StatusScreen
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => StatusScreen(
+//           key: _statusScreenKey,  // Pass the GlobalKey to the StatusScreen
+//         ),
+//       ),
+//     );
+
+//     // Simulate image sending completion and update StatusScreen
+//     Future.delayed(Duration(seconds: 3), () {
+//       // Use the GlobalKey to call the updateStatus function in StatusScreen
+//       _statusScreenKey.currentState?.updateStatus("Image Sent!");
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Send Image")),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Text("Status: $status", style: TextStyle(fontSize: 24)),
+//             SizedBox(height: 20),
+//             ElevatedButton(
+//               onPressed: sendImage,
+//               child: Text("Send Image"),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class StatusScreen extends StatefulWidget {
+//   StatusScreen({Key? key}) : super(key: key);
+
+//   @override
+//   _StatusScreenState createState() => _StatusScreenState();
+// }
+
+// class _StatusScreenState extends State<StatusScreen> {
+//   String status = "Waiting for image...";
+
+//   // Method to update status that can be called from SendImageScreen
+//   void updateStatus(String newStatus) {
+//     setState(() {
+//       status = newStatus;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Status Screen")),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Text("Status: $status", style: TextStyle(fontSize: 24)),
+//             SizedBox(height: 20),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
