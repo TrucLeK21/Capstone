@@ -136,13 +136,13 @@ def get_body_metrics(height, weight, age, gender, activity_factor):
     "bmr": bmr,
     "tdee": tdee,
     "lbm": lbm,
-    "fat_percentage": fat_percentage,
-    "water_percentage": water_percentage,
-    "bone_mass": bone_mass,
-    "muscle_mass": muscle_mass,
-    "protein_percentage": protein_percentage,
-    "visceral_fat": visceral_fat,
-    "ideal_weight": idealWeight
+    "fatPercentage": fat_percentage,
+    "waterPercentage": water_percentage,
+    "boneMass": bone_mass,
+    "muscleMass": muscle_mass,
+    "proteinPercentage": protein_percentage,
+    "visceralFat": visceral_fat,
+    "idealWeight": idealWeight
     }
     
     return body_metrics
