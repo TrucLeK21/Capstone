@@ -4,24 +4,32 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:convert';
 import 'package:health_app/models/user.dart';
+import 'package:health_app/pages/camera_page.dart';
 import 'package:health_app/services/user_services.dart';
 
-class DisplayBodyMetricsScreen extends StatefulWidget {
-  final double weight; // Receive the weight variable from the parent
 
-  const DisplayBodyMetricsScreen({super.key, required this.weight});
+class DisplayBodyMetricsScreen extends StatefulWidget {
+  final double weight;
+  final BluetoothDevice? connectedRaspi; // Receive the weight variable from the parent
+  final String? initialProgress;
+
+  const DisplayBodyMetricsScreen({
+    Key? key,
+    required this.weight,
+    this.connectedRaspi,
+    this.initialProgress,
+  }) : super(key: key);
 
   @override
-  _DisplayBodyMetricsScreen createState() => _DisplayBodyMetricsScreen();
+  DisplayBodyMetricsScreenState createState() => DisplayBodyMetricsScreenState();
 }
 
-class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
+class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
   BluetoothDevice? rasPi;
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
   final Guid characteristicUuidPi = Guid('00000002-cbd6-4d25-8851-18cb67b7c2d9');
-  String progressText = "Connecting to BLE Server...";
-  // Map<String, dynamic>? bodyMetrics;
+  String progressText = "";
   bool isValid = false;
   List<Map<String, dynamic>> bodyMetrics = [];
   User? user;
@@ -30,8 +38,23 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
   @override
   void initState() {
     super.initState();
-    scanAndConnect();
+    if (widget.initialProgress != null) {
+      progressText = widget.initialProgress!;
+    }
     _loadUserProfile();
+    rasPi = widget.connectedRaspi;
+  }
+
+    // Method to update status that can be called from SendImageScreen
+  void updateProgress(String progressTxt) {
+    print("update Text: $progressTxt");
+    setState(() {
+      progressText = progressTxt;
+    });
+
+    if (progressText == "Image sent successfully!") {
+      scanAndConnect();
+    }
   }
 
     // Hàm lấy thông tin người dùng
@@ -52,25 +75,30 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
   }
 
   void scanAndConnect() async {
-    // Start scanning
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 30), withNames: ["Weight Scale"],);
+    // if the device already connected, discover the characteristic immediately
+    if (rasPi?.connectionState.first == BluetoothConnectionState.connected) {
+      discoverServices();
+    } else {
+      // Start scanning
+      FlutterBluePlus.startScan(timeout: const Duration(seconds: 30), withNames: ["Weight Scale"],);
 
-    // Listen to scan results
-    FlutterBluePlus.scanResults.listen((results) async {
-      for (ScanResult result in results) {
-        if (result.device.platformName == "Weight Scale") { // Replace with your BLE server name
-          FlutterBluePlus.stopScan();
-          setState(() {
-            rasPi = result.device;
-          });
+      // Listen to scan results
+      FlutterBluePlus.scanResults.listen((results) async {
+        for (ScanResult result in results) {
+          if (result.device.platformName == "Weight Scale") { // Replace with your BLE server name
+            FlutterBluePlus.stopScan();
+            setState(() {
+              rasPi = result.device;
+            });
 
-          // Connect to the device
-          await rasPi!.connect();
-          discoverServices();
-          break;
+            // Connect to the device
+            await rasPi!.connect();
+            discoverServices();
+            break;
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   void discoverServices() async {
@@ -280,6 +308,16 @@ class _DisplayBodyMetricsScreen extends State<DisplayBodyMetricsScreen> {
         appBar: AppBar(
           title: const Text('Body Metrics'),
           centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/home',  // The page you want to go back to
+                (route) => false,  // Remove all routes above the '/home' page
+              );
+            },
+          ),
         ),
         body: ListView.builder(
           padding: const EdgeInsets.all(16.0),
@@ -360,6 +398,7 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
   @override
   void dispose(){
     super.dispose();
+    miScale?.disconnect();
   }
 
 
@@ -513,7 +552,7 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
       );
     } else {
       if (_finishGetingWeight) {
-        return DisplayBodyMetricsScreen(weight: _weight);
+        return CameraPage(weight: _weight);
       }
 
       if (_isConnected) {

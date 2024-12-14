@@ -31,6 +31,8 @@ const getLocalExternalIP = () => {
 const HOST = getLocalExternalIP();
 // const HOST = "caonguyen-laptop";
 
+// const HOST = "trucle-pc";
+
 app.listen(port, HOST, () => {
   // const networkInterfaces = os.networkInterfaces();
   // const ip = Object.values(networkInterfaces)
