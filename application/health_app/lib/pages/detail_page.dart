@@ -21,6 +21,7 @@ class _DetailPageState extends State<DetailPage> {
   String _selectedRecord = "";
   String _metricUnit = "";
   String _formattedDate = "";
+  int? memId;
 
   @override
   void initState() {
@@ -37,8 +38,9 @@ class _DetailPageState extends State<DetailPage> {
       final arguments = modalRoute.settings.arguments as Map?;
       if (arguments != null) {
         final metric = arguments['metric'];
-        print('Metric: $metric');
-        final res = await userServices().getMetricRecords(metric);
+        memId = arguments['userId'];
+
+        final res = await userServices().getMetricRecords(metric, memId);
         if (res != null && res.isNotEmpty) {
           setState(() {
             records = res;
@@ -72,6 +74,8 @@ class _DetailPageState extends State<DetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Column(children: [
+          memId != null ?
+          Text("Chi tiết thành viên"):
           Text("Chi tiết"),
           Text(
             // "Lúc ${_selectedRecordDate?.hour.toString().padLeft(2, '0')}:${_selectedRecordDate?.minute.toString().padLeft(2, '0')} - ${_selectedRecordDate?.day.toString().padLeft(2, '0')}/${_selectedRecordDate?.month.toString().padLeft(2, '0')}/${_selectedRecordDate?.year.toString()}",

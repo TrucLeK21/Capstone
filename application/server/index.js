@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import users from "./routes/users.js";
 import auth from "./routes/auth.js";
+import groups from "./routes/groups.js"
 import os from "os";
 dotenv.config();
 
@@ -27,8 +28,8 @@ const getLocalExternalIP = () => {
     .find((details) => details.family === 'IPv4' && !details.internal)?.address;
   return ipAddress || '0.0.0.0'; // Trả về '0.0.0.0' nếu không tìm thấy IP nào
 };
-
-const HOST = "caonguyen-laptop";
+const HOST = getLocalExternalIP();
+// const HOST = "caonguyen-laptop";
 
 app.listen(port, HOST, () => {
   // const networkInterfaces = os.networkInterfaces();
@@ -54,5 +55,6 @@ mongoose.connect(mongodb_url)
   });
   app.use(`${api_url}/users`, users);
   app.use(`${api_url}/auth`, auth);
+  app.use(`${api_url}/groups`, groups);
 
 

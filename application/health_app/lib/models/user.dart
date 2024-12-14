@@ -26,9 +26,9 @@ class User {
 
   // Phương thức tạo đối tượng User từ JSON
   factory User.fromJson(Map<String, dynamic> json) {
-    json.forEach((key, value) {
-      print('Field: $key, Type: ${value.runtimeType}, Value: $value');
-    });
+    // json.forEach((key, value) {
+    //   print('Field: $key, Type: ${value.runtimeType}, Value: $value');
+    // });
     return User(
       id: json['id'] ?? 1, // Gán giá trị mặc định 0 nếu 'id' là null
       username:

@@ -12,13 +12,14 @@ class CustomFooter extends StatelessWidget {
       if (index != curIdx) {
         switch (index) {
           case 0:
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            
             break;
           case 1:
-            Navigator.pushReplacementNamed(context, '/family');
+            Navigator.pushNamedAndRemoveUntil(context, '/family', (route) => false);
             break;
           case 2:
-            Navigator.pushReplacementNamed(context, '/profile');
+            Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
             break;
 
           default:

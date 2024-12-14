@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:health_app/consts.dart';
 import 'package:health_app/pages/ble_page.dart';
+import 'package:health_app/pages/create_group_page.dart';
 import 'package:health_app/pages/detail_page.dart';
 import 'package:health_app/pages/edit_profile_page.dart';
 import 'package:health_app/pages/family_page.dart';
 import 'package:health_app/pages/home_page.dart';
+import 'package:health_app/pages/join_group_page.dart';
 import 'package:health_app/pages/login_page.dart';
+import 'package:health_app/pages/member_metrics_page.dart';
 import 'package:health_app/pages/profile_page.dart';
 import 'package:health_app/pages/register_page.dart';
 
@@ -45,6 +48,9 @@ class MyApp extends StatelessWidget {
         "/profile": (context) => const ProfilePage(),
         "/edit-profile": (context) => const EditProfilePage(),
         "/ble-screen": (context) => const BlueetoothConnectionScreen(),
+        "/create-group": (context) => const CreateGroupPage(),
+        "/join-group": (context) => const JoinGroupPage(),
+        "/member-metrics": (context) => const MemberMetricsPage(),
       },
     );
   }

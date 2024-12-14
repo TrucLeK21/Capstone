@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import moment from 'moment-timezone';
 const SALT_ROUNDS = 10;
 
 // Schema định nghĩa User
@@ -141,10 +140,6 @@ userSchema.methods.addRecord = function({weight, height, dateOfBirth, gender, ac
     this.gender = gender;
     
     const date = new Date();
-    console.log(date.toString());
-    console.log(date.toLocaleString());
-    const vndate = moment.tz("Asia/Ho_Chi_Minh").toDate();
-    console.log(vndate.to);
     const age = getAge(dateOfBirth);
     const bmi = getBmi(weight, height);
     const bmr = getBmr(weight, height, age, gender);

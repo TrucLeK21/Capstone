@@ -1,43 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:health_app/consts.dart';
-// import 'package:health_app/models/metrics.dart';
 import 'package:health_app/models/user.dart';
-// import 'package:health_app/pages/ble_page.dart';
 import 'package:health_app/services/user_services.dart';
 import 'package:health_app/widgets/custom_footer.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class MemberMetricsPage extends StatefulWidget {
+  const MemberMetricsPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MemberMetricsPage> createState() => _MemberMetricsPageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final int index = 0;
-  User? user;
-  DateTime? latestDate;
+class _MemberMetricsPageState extends State<MemberMetricsPage> {
+  final int index = 1;
+  User? _member;
   List<dynamic>? latestRecord;
+  DateTime? latestDate;
 
   @override
   void initState() {
     super.initState();
     // Gọi hàm lấy thông tin người dùng khi trang được tải
-    _loadUserProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
-  // Hàm lấy thông tin người dùng
-  void _loadUserProfile() async {
-    try {
-      final profile = await userServices().profile();
-      final res = await userServices().getLatestRecord(null);
+  void _loadData() async {
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      final arguments = modalRoute.settings.arguments as Map?;
+      if (arguments != null) {
+        final memberId = arguments['memberId'];
+        final memberProfile = await userServices().getMemberInfo(memberId);
+        final record;
+        if (memberProfile != null) {
+          setState(() {
+            _member = memberProfile;
+          });
+        }
+        if (memberId != null) {
+          record = await userServices().getLatestRecord(memberId);
+        }
+        else record = null;
 
-      if (profile != null) {
-        setState(() {
-          user = profile;
-        });
-        if (res != null) {
-          latestRecord = res;
+        if(record != null) {
+          setState(() {
+            latestRecord = record;
+          });
+
           final dateRecord = latestRecord?.firstWhere(
               (record) => record['key'] == 'date',
               orElse: () => null);
@@ -46,21 +57,20 @@ class _HomePageState extends State<HomePage> {
               : null;
         }
       } else {
-        print('Không thể tải thông tin người dùng');
+        print('No arguments found');
       }
-    } catch (e) {
-      print('Lỗi khi tải thông tin người dùng: $e');
+    } else {
+      print('No ModalRoute found');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.superLightGray,
-        title: const Text(
-          "Trang chủ",
+        title: Text(
+          _member?.fullName ?? _member?.username ?? "",
         ),
         centerTitle: true,
       ),
@@ -94,23 +104,6 @@ class _HomePageState extends State<HomePage> {
                 return const SizedBox();
               },
             )),
-        // Nút nổi
-        Positioned(
-          bottom: 20, // Khoảng cách từ cạnh dưới
-          right: 20, // Khoảng cách từ cạnh phải
-          child: FloatingActionButton(
-            onPressed: () {
-              // Hành động khi nhấn nút
-              Navigator.pushNamed(context, "/ble-screen");
-            },
-            backgroundColor: AppColors.mainColor, // Màu nền nút
-            foregroundColor: Colors.white, // Màu biểu tượng
-            child: const Icon(
-              Icons.monitor_weight,
-              size: 40,
-            ), // Biểu tượng trên nút
-          ),
-        ),
       ],
     );
   }
@@ -124,6 +117,7 @@ class _HomePageState extends State<HomePage> {
           '/detail',
           arguments: {
             "metric": key,
+            "userId": _member?.id,
           },
         );
       },
@@ -247,4 +241,5 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  
 }

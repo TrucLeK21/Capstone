@@ -37,9 +37,9 @@ class Metrics {
 
   // Phương thức tạo đối tượng Metrics từ JSON
   factory Metrics.fromJson(Map<String, dynamic> json) {
-    json.forEach((key, value) {
-      print('Field: $key, Type: ${value.runtimeType}, Value: $value');
-    });
+    // json.forEach((key, value) {
+    //   print('Field: $key, Type: ${value.runtimeType}, Value: $value');
+    // });
     return Metrics(
       date: json['date'] != null ? DateTime.parse(json['date']) : null,
       height: json['height'] != null ? double.tryParse(json['height'].toString()) as double : null,

@@ -45,7 +45,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final profile = await userServices().profile();
 
       if (profile != null) {
-        print(profile);
         setState(() {
           user = profile;
           lastestRecord = profile.getLatestRecord();

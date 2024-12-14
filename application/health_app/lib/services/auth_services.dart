@@ -13,13 +13,12 @@ class AuthServices {
   }
 
   Future<http.Response?> login(Map<String, dynamic> data) async {
-    print(data);
+
     final res = await _httpServices.post('/auth/login', data: data);
 
     if (res?.statusCode == 200 || res?.statusCode == 202) {
       // Kiểm tra và cập nhật session với token
       data = jsonDecode(res!.body);
-      print(data);
       UserSession().updateSession(token: data['token']);
       return res;
     } else {
