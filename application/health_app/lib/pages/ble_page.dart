@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:health_app/consts.dart';
 import 'dart:async';
 import 'dart:math';
 import 'dart:convert';
@@ -7,10 +8,10 @@ import 'package:health_app/models/user.dart';
 import 'package:health_app/pages/camera_page.dart';
 import 'package:health_app/services/user_services.dart';
 
-
 class DisplayBodyMetricsScreen extends StatefulWidget {
   final double weight;
-  final BluetoothDevice? connectedRaspi; // Receive the weight variable from the parent
+  final BluetoothDevice?
+      connectedRaspi; // Receive the weight variable from the parent
   final String? initialProgress;
 
   const DisplayBodyMetricsScreen({
@@ -21,19 +22,20 @@ class DisplayBodyMetricsScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  DisplayBodyMetricsScreenState createState() => DisplayBodyMetricsScreenState();
+  DisplayBodyMetricsScreenState createState() =>
+      DisplayBodyMetricsScreenState();
 }
 
 class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
   BluetoothDevice? rasPi;
   BluetoothCharacteristic? _writeCharacteristic;
   BluetoothCharacteristic? _readCharacteristic;
-  final Guid characteristicUuidPi = Guid('00000002-cbd6-4d25-8851-18cb67b7c2d9');
+  final Guid characteristicUuidPi =
+      Guid('00000002-cbd6-4d25-8851-18cb67b7c2d9');
   String progressText = "";
   bool isValid = false;
   List<Map<String, dynamic>> bodyMetrics = [];
   User? user;
-
 
   @override
   void initState() {
@@ -45,7 +47,7 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
     rasPi = widget.connectedRaspi;
   }
 
-    // Method to update status that can be called from SendImageScreen
+  // Method to update status that can be called from SendImageScreen
   void updateProgress(String progressTxt) {
     print("update Text: $progressTxt");
     setState(() {
@@ -57,7 +59,7 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
     }
   }
 
-    // Hàm lấy thông tin người dùng
+  // Hàm lấy thông tin người dùng
   void _loadUserProfile() async {
     try {
       final profile = await userServices().profile();
@@ -80,12 +82,16 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
       discoverServices();
     } else {
       // Start scanning
-      FlutterBluePlus.startScan(timeout: const Duration(seconds: 30), withNames: ["Weight Scale"],);
+      FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 30),
+        withNames: ["Weight Scale"],
+      );
 
       // Listen to scan results
       FlutterBluePlus.scanResults.listen((results) async {
         for (ScanResult result in results) {
-          if (result.device.platformName == "Weight Scale") { // Replace with your BLE server name
+          if (result.device.platformName == "Weight Scale") {
+            // Replace with your BLE server name
             FlutterBluePlus.stopScan();
             setState(() {
               rasPi = result.device;
@@ -105,28 +111,32 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
     if (rasPi == null) return;
 
     List<BluetoothService> services = await rasPi!.discoverServices();
-      for (BluetoothService service in services) {
-        for (BluetoothCharacteristic characteristic in service.characteristics) {
-          if (characteristic.uuid == characteristicUuidPi) {
-            print('Found characteristic with UUID: ${characteristic.uuid}');
-            if (characteristic.properties.write) {
-              setState(() {
+    for (BluetoothService service in services) {
+      for (BluetoothCharacteristic characteristic in service.characteristics) {
+        if (characteristic.uuid == characteristicUuidPi) {
+          print('Found characteristic with UUID: ${characteristic.uuid}');
+          if (characteristic.properties.write) {
+            setState(
+              () {
                 _writeCharacteristic = characteristic;
-              },);
-            }
-            if (characteristic.properties.read) {
-              setState(() {
+              },
+            );
+          }
+          if (characteristic.properties.read) {
+            setState(
+              () {
                 _readCharacteristic = characteristic;
-              },);
-            }
+              },
+            );
+          }
 
-            if (_writeCharacteristic != null && _readCharacteristic != null) {
-              // start writing data as soon as both read & write are available
-              writeData();
-            }
+          if (_writeCharacteristic != null && _readCharacteristic != null) {
+            // start writing data as soon as both read & write are available
+            writeData();
           }
         }
       }
+    }
   }
 
   void writeData() async {
@@ -135,10 +145,7 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
         progressText = "Sending data...";
       });
 
-      final data = {
-        "id": user?.id,
-        "weight": widget.weight
-      };
+      final data = {"id": user?.id, "weight": widget.weight};
 
       String string_data = jsonEncode(data);
 
@@ -235,74 +242,68 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
   Widget build(BuildContext context) {
     if (!isValid) {
       return Scaffold(
-        body: Container(
-          color: Colors.white,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(height: 10),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '${widget.weight} ', // Weight part
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'Kg', // Smaller "Kg"
-                        style: TextStyle(
-                          fontSize: 20, // Smaller font size for "Kg"
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 50),
-                Stack(
-                  alignment: Alignment.center,
+          body: Container(
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 10),
+              RichText(
+                text: TextSpan(
                   children: [
-                    SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: CircularProgressIndicator(
-                        color: Colors.lightBlue,
+                    TextSpan(
+                      text: '${widget.weight} ', // Weight part
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                    Image.asset(
-                      'assets/img/pi4.png',
-                      // fit: BoxFit.cover,
-                      width: 70,
-                      height: 70,
+                    TextSpan(
+                      text: 'Kg', // Smaller "Kg"
+                      style: TextStyle(
+                        fontSize: 20, // Smaller font size for "Kg"
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  progressText,
+              ),
+              SizedBox(height: 50),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: CircularProgressIndicator(
+                      color: Colors.lightBlue,
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/img/pi4.png',
+                    // fit: BoxFit.cover,
+                    width: 70,
+                    height: 70,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Text(progressText,
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.black,
                     fontFamily: 'Roboto',
-                  )
-                ),
-                ElevatedButton(
-                  onPressed: scanAndConnect,
-                  child: Text("Retry")
-                ),
-              ],
-            ),
+                  )),
+              ElevatedButton(onPressed: scanAndConnect, child: Text("Retry")),
+            ],
           ),
-        )
-      );
+        ),
+      ));
     } else {
       return Scaffold(
         appBar: AppBar(
@@ -313,8 +314,8 @@ class DisplayBodyMetricsScreenState extends State<DisplayBodyMetricsScreen> {
             onPressed: () {
               Navigator.pushNamedAndRemoveUntil(
                 context,
-                '/home',  // The page you want to go back to
-                (route) => false,  // Remove all routes above the '/home' page
+                '/home', // The page you want to go back to
+                (route) => false, // Remove all routes above the '/home' page
               );
             },
           ),
@@ -376,10 +377,12 @@ class BlueetoothConnectionScreen extends StatefulWidget {
   const BlueetoothConnectionScreen({super.key});
 
   @override
-  State<BlueetoothConnectionScreen> createState() => _BlueetoothConnectionScreenState();
+  State<BlueetoothConnectionScreen> createState() =>
+      _BlueetoothConnectionScreenState();
 }
 
-class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen> {
+class _BlueetoothConnectionScreenState
+    extends State<BlueetoothConnectionScreen> {
   BluetoothDevice? miScale;
   bool _isConnecting = true;
   bool _isConnected = false;
@@ -390,21 +393,23 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
   final Guid characteristicUuid = Guid('00002a9d-0000-1000-8000-00805f9b34fb');
 
   @override
-  void initState(){
+  void initState() {
     startScan();
     super.initState();
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
     miScale?.disconnect();
   }
 
-
   void startScan() {
     if (!_isConnected) {
-      FlutterBluePlus.startScan(timeout: const Duration(seconds: 30), withNames: ["MI SCALE2"],);
+      FlutterBluePlus.startScan(
+        timeout: const Duration(seconds: 30),
+        withNames: ["MI SCALE2"],
+      );
 
       // Set a timer to check if no device is found within the timeout
       Future.delayed(const Duration(seconds: 30), () {
@@ -417,7 +422,6 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
           });
         }
       });
-
 
       // Listen to scan results
       FlutterBluePlus.scanResults.listen((results) {
@@ -455,7 +459,7 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
           _finishGetingWeight = true;
           _weight = weight;
         });
-      } catch(e) {
+      } catch (e) {
         print('Error connecting to device: $e');
       }
     } else {
@@ -476,13 +480,14 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
       // Discover services and find the specific characteristic
       List<BluetoothService> services = await device.discoverServices();
       for (BluetoothService service in services) {
-        for (BluetoothCharacteristic characteristic in service.characteristics) {
+        for (BluetoothCharacteristic characteristic
+            in service.characteristics) {
           if (characteristic.uuid == characteristicUuid) {
-              print('Found characteristic with UUID: ${characteristic.uuid}');
+            print('Found characteristic with UUID: ${characteristic.uuid}');
 
-              // Read data from the characteristic
-              characteristic.setNotifyValue(true);
-              characteristic.lastValueStream.listen((value) {
+            // Read data from the characteristic
+            characteristic.setNotifyValue(true);
+            characteristic.lastValueStream.listen((value) {
               // Handle received value
               if (value.isNotEmpty) {
                 processReceivedData(value);
@@ -502,61 +507,59 @@ class _BlueetoothConnectionScreenState extends State<BlueetoothConnectionScreen>
   Widget build(BuildContext context) {
     if (_isConnecting) {
       return Scaffold(
-        body: Container(
-                color: Colors.white,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          SizedBox(
-                            height: 100,
-                            width: 100,
-                            child: CircularProgressIndicator(
-                              color: Colors.lightBlue,
-                            ),
-                          ),
-                          Image.asset(
-                            'assets/img/miscale2.png',
-                            fit: BoxFit.cover,
-                            width: 60,
-                            height: 60,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Connecting to MI SCALE 2',
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontFamily: 'Roboto',
-                        )
-                      ),
-                      Text(
-                        'Please step on the scale',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.blueGrey,
-                          fontFamily: 'Roboto',
-                        ),
-                      ),
-                    ],
+          body: Container(
+        color: Colors.white,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: 100,
+                    width: 100,
+                    child: CircularProgressIndicator(
+                      color: Colors.lightBlue,
+                    ),
                   ),
+                  Image.asset(
+                    'assets/img/miscale2.png',
+                    fit: BoxFit.cover,
+                    width: 60,
+                    height: 60,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Text('Connecting to MI SCALE 2',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontFamily: 'Roboto',
+                  )),
+              Text(
+                'Please step on the scale',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.blueGrey,
+                  fontFamily: 'Roboto',
                 ),
-              )
-      );
+              ),
+            ],
+          ),
+        ),
+      ));
     } else {
       if (_finishGetingWeight) {
         return CameraPage(weight: _weight);
       }
 
       if (_isConnected) {
-        return WeightDisplayScreen(weight: _weight); // Navigate to Weight Display screen on success
+        return WeightDisplayScreen(
+            weight: _weight); // Navigate to Weight Display screen on success
       } else {
         return const CannotConnectScreen(); // Show error screen if connection failed
       }
@@ -570,6 +573,11 @@ class CannotConnectScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: const Text(""),
+        centerTitle: true,
+      ),
       body: Container(
         color: Colors.white,
         child: const Center(
@@ -584,22 +592,18 @@ class CannotConnectScreen extends StatelessWidget {
               SizedBox(
                 height: 20,
               ),
-              Text(
-                'Cannot connect to MI SCALE 2',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.black,
-                  fontFamily: 'Roboto',
-                )
-              ),
-              Text(
-                'Please try again',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.blueGrey,
-                  fontFamily: 'Roboto',
-                )
-              ),
+              Text('Cannot connect to MI SCALE 2',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontFamily: 'Roboto',
+                  )),
+              Text('Please try again',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blueGrey,
+                    fontFamily: 'Roboto',
+                  )),
               // ElevatedButton(
               //   child: const Text('Retry'),
               // ),
@@ -621,15 +625,16 @@ class WeightDisplayScreen extends StatefulWidget {
 }
 
 class _WeightDisplayScreenState extends State<WeightDisplayScreen>
-    with SingleTickerProviderStateMixin { // Mix in the ticker provider
+    with SingleTickerProviderStateMixin {
+  // Mix in the ticker provider
   late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the animation controller for spinning effect                                                                                      
+    // Initialize the animation controller for spinning effect
     _animationController =
-        AnimationController(vsync: this, duration: const Duration(seconds: 3))                                                                                        
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
           ..repeat(); // Repeats infinitely
   }
 

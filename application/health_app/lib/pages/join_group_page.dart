@@ -46,7 +46,7 @@ class _JoinGroupPageState extends State<JoinGroupPage> {
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: "Nhập tên người dùng",
+                labelText: "Nhập tên nhóm",
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
