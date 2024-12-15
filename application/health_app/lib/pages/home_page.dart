@@ -151,27 +151,31 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.accessibility,
-                        color: AppColors.mainColor,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 5),
-                      SizedBox(
-                        width: 130,
-                        child: Text(
-                          name,
-                          style: const TextStyle(
-                            color: AppColors.mainColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                          softWrap: true,
+                  Flexible(
+                    // Wrap the first Row
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.accessibility,
+                          color: AppColors.mainColor,
+                          size: 32,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 5),
+                        Flexible(
+                          // Let the Text adapt to available space
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              color: AppColors.mainColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis, // Prevent overflow
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -183,6 +187,7 @@ class _HomePageState extends State<HomePage> {
                           color: AppColors.boldGray,
                           fontSize: 20,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const Icon(
                         Icons.arrow_forward_ios,

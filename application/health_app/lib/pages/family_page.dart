@@ -279,11 +279,11 @@ class _FamilyPageState extends State<FamilyPage> {
                 children: [
                   Text(
                     isOwner ? "Trưởng nhóm" : "Thành viên",
-                    style: TextStyle(color: AppColors.appGreen, fontSize: 20),
+                    style: TextStyle(color: AppColors.appGreen, fontSize: 15),
                   ),
                   const Icon(
                     Icons.arrow_forward_ios,
-                    size: 20,
+                    size: 15,
                     color: Colors.grey,
                   ),
                 ],
