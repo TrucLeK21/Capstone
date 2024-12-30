@@ -11,5 +11,6 @@ class AppColors {
 }
 
 // const String API_URL = "http://caonguyen-laptop:5000/api";
-const String API_URL = "http://169.254.83.107:5000/api";
+// const String API_URL = "http://169.254.83.107:5000/api";
 // const String API_URL = "http://trucle-pc:5000/api";
+const String API_URL = "http://truc-laptop:5000/api";

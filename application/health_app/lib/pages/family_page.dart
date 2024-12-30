@@ -262,7 +262,7 @@ class _FamilyPageState extends State<FamilyPage> {
                   ),
                   const SizedBox(width: 5),
                   SizedBox(
-                    width: 150,
+                    width: 130,
                     child: Text(
                       name,
                       style: const TextStyle(

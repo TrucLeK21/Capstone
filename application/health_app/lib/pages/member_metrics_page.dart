@@ -145,27 +145,28 @@ class _MemberMetricsPageState extends State<MemberMetricsPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.accessibility,
-                        color: AppColors.mainColor,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 5),
-                      SizedBox(
-                        width: 130,
-                        child: Text(
-                          name,
-                          style: const TextStyle(
-                            color: AppColors.mainColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                          softWrap: true,
+                  Flexible (
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.accessibility,
+                          color: AppColors.mainColor,
+                          size: 32,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 5),
+                          Flexible(
+                            child: Text(
+                              name,
+                              style: const TextStyle(
+                                color: AppColors.mainColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                              ),
+                              softWrap: true,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
